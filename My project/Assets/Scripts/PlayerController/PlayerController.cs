@@ -11,6 +11,9 @@ public class PlayerController : IUpdatable
     private float jumpBufferTime = 0.15f;
     private float jumpBufferCounter = 0f;
 
+    private float coyoteTime = 0.2f;
+    private float coyoteTimeCounter = 0f;
+
     private float groundCheckDistance = 0.3f;
     private float wallCheckDistance = 0.2f;
     private float characterRadius = 0.3f;
@@ -35,6 +38,16 @@ public class PlayerController : IUpdatable
     public void Tick(float deltaTime)
     {
         isGrounded = CheckGrounded();
+
+        if (isGrounded)
+        {
+            coyoteTimeCounter = coyoteTime;
+        }
+        else if (coyoteTimeCounter > 0f)
+        {
+            coyoteTimeCounter -= deltaTime;
+        }
+
         HandleMovement(deltaTime);
         HandleGravity(deltaTime);
         ApplyMovement(deltaTime);
@@ -64,10 +77,11 @@ public class PlayerController : IUpdatable
             jumpBufferCounter = jumpBufferTime;
         }
 
-        if (isGrounded && jumpBufferCounter > 0f)
+        if (jumpBufferCounter > 0f && (isGrounded || coyoteTimeCounter > 0f))
         {
             velocity.y = jumpForce;
             isGrounded = false;
+            coyoteTimeCounter = 0f;
             jumpBufferCounter = 0f;
         }
 
