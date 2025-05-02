@@ -9,8 +9,8 @@ public class PlayerController : IUpdatable
     private float jumpForce = 7f;
     private float gravity = -20f;
 
-    private float groundCheckDistance = 0.2f;
-    private float wallCheckDistance = 0.5f;
+    private float groundCheckDistance = 0.3f;
+    private float wallCheckDistance = 0.1f;
     private float characterRadius = 0.3f;
 
     private bool isGrounded;
@@ -28,6 +28,7 @@ public class PlayerController : IUpdatable
 
     public void Tick(float deltaTime)
     {
+        isGrounded = CheckGrounded();
         HandleMovement(deltaTime);
         HandleGravity(deltaTime);
         ApplyMovement(deltaTime);
@@ -59,7 +60,10 @@ public class PlayerController : IUpdatable
 
     private void HandleGravity(float deltaTime)
     {
-        velocity.y += gravity * deltaTime;
+        if (!isGrounded)
+        {
+            velocity.y += gravity * deltaTime;
+        }
     }
 
     private void ApplyMovement(float deltaTime)
@@ -67,15 +71,13 @@ public class PlayerController : IUpdatable
         Vector3 verticalMove = new Vector3(0, velocity.y, 0) * deltaTime;
         playerTransform.position += verticalMove;
 
-        
         if (playerTransform.position.y < -10f)
         {
             playerTransform.position = new Vector3(0f, 2f, 0f);
             velocity.y = 0f;
         }
 
-        
-        if (CheckGrounded() && velocity.y < 0)
+        if (isGrounded && velocity.y < 0)
         {
             velocity.y = 0f;
         }
@@ -83,7 +85,7 @@ public class PlayerController : IUpdatable
 
     private bool CheckGrounded()
     {
-        Vector3 origin = playerTransform.position + Vector3.up * 0.1f;
+        Vector3 origin = playerTransform.position + Vector3.up * 0.05f;
         Vector3 direction = Vector3.down;
 
         int hits = Physics.SphereCastNonAlloc(origin, characterRadius, direction, hitResults, groundCheckDistance, groundMask);
@@ -92,7 +94,7 @@ public class PlayerController : IUpdatable
 
     private bool CheckWall(Vector3 direction)
     {
-        Vector3 origin = playerTransform.position + Vector3.up * 0.5f;
+        Vector3 origin = playerTransform.position + Vector3.up * 0.05f;
         direction = direction.normalized;
 
         int hits = Physics.SphereCastNonAlloc(origin, characterRadius, direction, hitResults, wallCheckDistance, wallMask);
