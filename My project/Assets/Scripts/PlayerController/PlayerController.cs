@@ -19,6 +19,8 @@ public class PlayerController : IUpdatable
     private LayerMask groundMask;
     private LayerMask wallMask;
 
+    private Transform cameraTransform;
+
     public PlayerController(Transform transform, LayerMask groundMask, LayerMask wallMask, float moveSpeed, float jumpForce)
     {
         playerTransform = transform;
@@ -34,6 +36,7 @@ public class PlayerController : IUpdatable
         HandleMovement(deltaTime);
         HandleGravity(deltaTime);
         ApplyMovement(deltaTime);
+        AlignWithCamera(deltaTime);
     }
 
     private void HandleMovement(float deltaTime)
@@ -101,5 +104,30 @@ public class PlayerController : IUpdatable
 
         int hits = Physics.SphereCastNonAlloc(origin, characterRadius, direction, hitResults, wallCheckDistance, wallMask);
         return hits > 0;
+    }
+
+    public void SetCameraTransform(Transform camTransform)
+    {
+        cameraTransform = camTransform;
+    }
+
+    private void AlignWithCamera(float deltaTime)
+    {
+        if (cameraTransform == null) return;
+
+        float inputX = Input.GetAxisRaw("Horizontal");
+        float inputZ = Input.GetAxisRaw("Vertical");
+
+        if (Mathf.Approximately(inputX, 0f) && Mathf.Approximately(inputZ, 0f))
+            return;
+
+        Vector3 cameraForward = cameraTransform.forward;
+        cameraForward.y = 0f; // Ignore vertical component
+
+        if(cameraForward.sqrMagnitude > 0.01f)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(cameraForward);
+            playerTransform.rotation = Quaternion.Lerp(playerTransform.rotation, targetRotation, deltaTime * 10f);
+        }
     }
 }

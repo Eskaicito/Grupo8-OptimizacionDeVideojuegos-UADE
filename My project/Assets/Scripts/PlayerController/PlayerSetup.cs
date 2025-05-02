@@ -14,7 +14,12 @@ public class PlayerSetup : MonoBehaviour
         
         playerLogic = new PlayerController(transform, groundMask, wallMask, moveSpeed, jumpForce);
 
-        
+        var cam = Camera.main;
+        if (cam != null)
+        {
+            playerLogic.SetCameraTransform(cam.transform);
+        }
+
         var updateManager = FindFirstObjectByType<CustomUpdateManager>();
         updateManager.Register(playerLogic);
     }
