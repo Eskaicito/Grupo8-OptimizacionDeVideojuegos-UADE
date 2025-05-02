@@ -8,6 +8,8 @@ public class PlayerController : IUpdatable
     private float moveSpeed;
     private float jumpForce;
     private float gravity = -20f;
+    private float jumpBufferTime = 0.15f;
+    private float jumpBufferCounter = 0f;
 
     private float groundCheckDistance = 0.3f;
     private float wallCheckDistance = 0.2f;
@@ -37,6 +39,11 @@ public class PlayerController : IUpdatable
         HandleGravity(deltaTime);
         ApplyMovement(deltaTime);
         AlignWithCamera(deltaTime);
+
+        if(jumpBufferCounter > 0f)
+        {
+            jumpBufferCounter -= deltaTime;
+        }
     }
 
     private void HandleMovement(float deltaTime)
@@ -52,7 +59,18 @@ public class PlayerController : IUpdatable
             playerTransform.position += moveDir * moveSpeed * deltaTime;
         }
 
-        
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            jumpBufferCounter = jumpBufferTime;
+        }
+
+        if (isGrounded && jumpBufferCounter > 0f)
+        {
+            velocity.y = jumpForce;
+            isGrounded = false;
+            jumpBufferCounter = 0f;
+        }
+
         isGrounded = CheckGrounded();
 
        
