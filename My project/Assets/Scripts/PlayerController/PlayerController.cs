@@ -5,12 +5,12 @@ public class PlayerController : IUpdatable
     private Transform playerTransform;
     private Vector3 velocity;
 
-    private float moveSpeed = 5f;
-    private float jumpForce = 7f;
+    private float moveSpeed;
+    private float jumpForce;
     private float gravity = -20f;
 
     private float groundCheckDistance = 0.3f;
-    private float wallCheckDistance = 0.1f;
+    private float wallCheckDistance = 0.2f;
     private float characterRadius = 0.3f;
 
     private bool isGrounded;
@@ -19,11 +19,13 @@ public class PlayerController : IUpdatable
     private LayerMask groundMask;
     private LayerMask wallMask;
 
-    public PlayerController(Transform transform, LayerMask groundMask, LayerMask wallMask)
+    public PlayerController(Transform transform, LayerMask groundMask, LayerMask wallMask, float moveSpeed, float jumpForce)
     {
         playerTransform = transform;
         this.groundMask = groundMask;
         this.wallMask = wallMask;
+        this.moveSpeed = moveSpeed;
+        this.jumpForce = jumpForce;
     }
 
     public void Tick(float deltaTime)
