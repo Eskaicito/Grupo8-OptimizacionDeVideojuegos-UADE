@@ -5,10 +5,10 @@ using UnityEngine;
 
 
 
+
 public class ProjectilePoolManager : MonoBehaviour
 {
-    [SerializeField] private GameObject projectilePrefab;
-    [SerializeField] private int poolSize = 10;
+    [SerializeField] private Transform poolParent; 
     [SerializeField] private Transform playerTransform;
 
     private Queue<WaterBall> pooledProjectiles = new Queue<WaterBall>();
@@ -18,12 +18,11 @@ public class ProjectilePoolManager : MonoBehaviour
     {
         updateManager = FindFirstObjectByType<CustomUpdateManager>();
 
-        for (int i = 0; i < poolSize; i++)
+        foreach (Transform child in poolParent)
         {
-            GameObject go = Instantiate(projectilePrefab); 
-            go.SetActive(false);
+            child.gameObject.SetActive(false);
 
-            var ball = new WaterBall(go.transform, 10f, 3f);
+            var ball = new WaterBall(child, 10f, 3f); 
             ball.SetPlayer(playerTransform);
 
             pooledProjectiles.Enqueue(ball);
