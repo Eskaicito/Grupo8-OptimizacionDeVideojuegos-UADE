@@ -8,26 +8,19 @@ public class TrapPlatforms : MonoBehaviour, IUpdatable
     [SerializeField] private Transform _fallingCube;
     [SerializeField] private Transform _objective;
     [SerializeField] private float _fallingSpeed = 3f;
-
     [SerializeField] private Vector3 _areaDetection = new Vector3(1f, 1f, 1f);
 
     private bool _isFalling = false;
-    private bool _isPlayerOnPlatform = false;
+    private Transform _player;   
 
-    public void SetPlayerOnPlatform(bool value)
+    public void SetPlayer(Transform player)
     {
-        _isPlayerOnPlatform = value;
-
-        if(_isPlayerOnPlatform && _isFalling)
-        {
-            _fallingCube.gameObject.SetActive(true);
-            _isFalling = true;
-        }
+        this._player = player;
     }
 
     public void Tick(float deltaTime)
     {
-        if(!_isFalling && _isPlayerOnPlatform)
+        if(!_isFalling && IsPlayerInArea())
         {
             _isFalling = true;
             _fallingCube.gameObject.SetActive(true);
@@ -37,12 +30,6 @@ public class TrapPlatforms : MonoBehaviour, IUpdatable
         {
             _fallingCube.position = Vector3.MoveTowards(_fallingCube.position, _objective.position, _fallingSpeed * deltaTime);
 
-            if (Vector3.Distance(_fallingCube.position, _objective.position) < 0.1f)
-            {
-                _isFalling = false;
-                _fallingCube.gameObject.SetActive(false);
-               
-            }
         }
     }
 
@@ -50,7 +37,6 @@ public class TrapPlatforms : MonoBehaviour, IUpdatable
     {
         Vector3 center = transform.position + Vector3.up * 0.5f;
         Bounds zone = new Bounds(center, _areaDetection);
-
-        return zone.Contains(transform.position);
+        return zone.Contains(_player.position);
     }
 }
