@@ -8,7 +8,7 @@ public class PlayerSetup : MonoBehaviour
     [SerializeField] private float moveSpeed;
     [SerializeField] private float jumpForce;
 
-
+    
     void Awake()
     {
         
@@ -23,4 +23,5 @@ public class PlayerSetup : MonoBehaviour
         var updateManager = FindFirstObjectByType<CustomUpdateManager>();
         updateManager.Register(playerLogic);
     }
+
 }
