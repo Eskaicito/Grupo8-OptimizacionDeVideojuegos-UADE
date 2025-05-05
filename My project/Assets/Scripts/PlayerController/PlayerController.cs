@@ -3,11 +3,17 @@ using UnityEngine;
 public class PlayerController : IUpdatable
 {
     private Transform playerTransform;
+    private Transform cameraTransform;
+
     private Vector3 velocity;
+    private Vector3 inputVector = Vector3.zero;
+    private Vector3 moveDirection = Vector3.zero;
+    private Vector3 verticalMove = Vector3.zero;
 
     private float moveSpeed;
     private float jumpForce;
     private float gravity = -20f;
+
     private float jumpBufferTime = 0.15f;
     private float jumpBufferCounter = 0f;
 
@@ -24,7 +30,10 @@ public class PlayerController : IUpdatable
     private LayerMask groundMask;
     private LayerMask wallMask;
 
-    private Transform cameraTransform;
+    // Cache strings y teclas
+    private static readonly string HorizontalAxis = "Horizontal";
+    private static readonly string VerticalAxis = "Vertical";
+    private static readonly KeyCode JumpKey = KeyCode.Space;
 
     public PlayerController(Transform transform, LayerMask groundMask, LayerMask wallMask, float moveSpeed, float jumpForce)
     {
@@ -35,47 +44,45 @@ public class PlayerController : IUpdatable
         this.jumpForce = jumpForce;
     }
 
+    public void SetCameraTransform(Transform camTransform)
+    {
+        cameraTransform = camTransform;
+    }
+
     public void Tick(float deltaTime)
     {
         isGrounded = CheckGrounded();
 
         if (isGrounded)
-        {
             coyoteTimeCounter = coyoteTime;
-        }
         else if (coyoteTimeCounter > 0f)
-        {
             coyoteTimeCounter -= deltaTime;
-        }
+
+        if (jumpBufferCounter > 0f)
+            jumpBufferCounter -= deltaTime;
 
         HandleMovement(deltaTime);
         HandleGravity(deltaTime);
         ApplyMovement(deltaTime);
         AlignWithCamera(deltaTime);
-
-        if(jumpBufferCounter > 0f)
-        {
-            jumpBufferCounter -= deltaTime;
-        }
     }
 
     private void HandleMovement(float deltaTime)
     {
-        Vector3 input = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical"));
-        input = Vector3.ClampMagnitude(input, 1f);
+        inputVector.x = Input.GetAxisRaw(HorizontalAxis);
+        inputVector.z = Input.GetAxisRaw(VerticalAxis);
+        inputVector.y = 0f;
+        inputVector = Vector3.ClampMagnitude(inputVector, 1f);
 
-        Vector3 moveDir = playerTransform.right * input.x + playerTransform.forward * input.z;
+        moveDirection = playerTransform.right * inputVector.x + playerTransform.forward * inputVector.z;
 
-        
-        if (moveDir != Vector3.zero && !CheckWall(moveDir))
+        if (moveDirection != Vector3.zero && !CheckWall(moveDirection))
         {
-            playerTransform.position += moveDir * moveSpeed * deltaTime;
+            playerTransform.position += moveDirection * moveSpeed * deltaTime;
         }
 
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
+        if (Input.GetKeyDown(JumpKey))
             jumpBufferCounter = jumpBufferTime;
-        }
 
         if (jumpBufferCounter > 0f && (isGrounded || coyoteTimeCounter > 0f))
         {
@@ -84,28 +91,20 @@ public class PlayerController : IUpdatable
             coyoteTimeCounter = 0f;
             jumpBufferCounter = 0f;
         }
-
-        isGrounded = CheckGrounded();
-
-       
-        if (isGrounded && Input.GetKeyDown(KeyCode.Space))
-        {
-            velocity.y = jumpForce;
-            isGrounded = false;
-        }
     }
 
     private void HandleGravity(float deltaTime)
     {
         if (!isGrounded)
-        {
             velocity.y += gravity * deltaTime;
-        }
     }
 
     private void ApplyMovement(float deltaTime)
     {
-        Vector3 verticalMove = new Vector3(0, velocity.y, 0) * deltaTime;
+        verticalMove.x = 0f;
+        verticalMove.y = velocity.y * deltaTime;
+        verticalMove.z = 0f;
+
         playerTransform.position += verticalMove;
 
         if (playerTransform.position.y < -10f)
@@ -123,40 +122,25 @@ public class PlayerController : IUpdatable
     private bool CheckGrounded()
     {
         Vector3 origin = playerTransform.position + Vector3.up * 0.05f;
-        Vector3 direction = Vector3.down;
-
-        int hits = Physics.SphereCastNonAlloc(origin, characterRadius, direction, hitResults, groundCheckDistance, groundMask);
-        return hits > 0;
+        return Physics.SphereCastNonAlloc(origin, characterRadius, Vector3.down, hitResults, groundCheckDistance, groundMask) > 0;
     }
 
     private bool CheckWall(Vector3 direction)
     {
         Vector3 origin = playerTransform.position + Vector3.up * 0.05f;
-        direction = direction.normalized;
-
-        int hits = Physics.SphereCastNonAlloc(origin, characterRadius, direction, hitResults, wallCheckDistance, wallMask);
-        return hits > 0;
-    }
-
-    public void SetCameraTransform(Transform camTransform)
-    {
-        cameraTransform = camTransform;
+        direction.Normalize();
+        return Physics.SphereCastNonAlloc(origin, characterRadius, direction, hitResults, wallCheckDistance, wallMask) > 0;
     }
 
     private void AlignWithCamera(float deltaTime)
     {
-        if (cameraTransform == null) return;
-
-        float inputX = Input.GetAxisRaw("Horizontal");
-        float inputZ = Input.GetAxisRaw("Vertical");
-
-        if (Mathf.Approximately(inputX, 0f) && Mathf.Approximately(inputZ, 0f))
+        if (cameraTransform == null || (Mathf.Approximately(inputVector.x, 0f) && Mathf.Approximately(inputVector.z, 0f)))
             return;
 
         Vector3 cameraForward = cameraTransform.forward;
-        cameraForward.y = 0f; // Ignore vertical component
+        cameraForward.y = 0f;
 
-        if(cameraForward.sqrMagnitude > 0.01f)
+        if (cameraForward.sqrMagnitude > 0.01f)
         {
             Quaternion targetRotation = Quaternion.LookRotation(cameraForward);
             playerTransform.rotation = Quaternion.Lerp(playerTransform.rotation, targetRotation, deltaTime * 10f);
