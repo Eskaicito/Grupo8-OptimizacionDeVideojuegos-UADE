@@ -7,8 +7,8 @@ public class TrapPlatforms : MonoBehaviour, IUpdatable
     [Header("Falling Cube")]
     [SerializeField] private Transform _fallingCube;
     [SerializeField] private Transform _objective;
-    [SerializeField] private float _fallingSpeed = 50f;
-    [SerializeField] private Vector3 _areaDetection = new Vector3(1f, 1f, 1f);
+    [SerializeField] private float _fallingSpeed = 200f;
+    [SerializeField] private Vector3 _areaDetection = new Vector3(5f, 5f, 5f);
 
     private bool _isFalling = false;
     private Transform _player;   
