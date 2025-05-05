@@ -8,10 +8,20 @@ public class TrapPlatforms : MonoBehaviour, IUpdatable
     [SerializeField] private Transform _fallingCube;
     [SerializeField] private Transform _objective;
     [SerializeField] private float _fallingSpeed = 200f;
-    [SerializeField] private Vector3 _areaDetection = new Vector3(5f, 5f, 5f);
+    //[SerializeField] private Vector3 _areaDetection = new Vector3(5f, 5f, 5f);
 
     private bool _isFalling = false;
-    private Transform _player;   
+    private Transform _player;
+
+    private Vector2 _platformXZ;
+    private float _minHeight = 0.5f;
+    private float _maxHeight = 2f;
+    private float _triggerDistanceSqr = 0.25f;
+
+    private void Awake()
+    {
+        _platformXZ = new Vector2(transform.position.x, transform.position.z);
+    }
 
     public void SetPlayer(Transform player)
     {
@@ -20,7 +30,9 @@ public class TrapPlatforms : MonoBehaviour, IUpdatable
 
     public void Tick(float deltaTime)
     {
-        if(!_isFalling && IsPlayerInArea())
+        if (_player == null) return;
+       
+        if (!_isFalling && IsPlayerInArea())
         {
             _isFalling = true;
             _fallingCube.gameObject.SetActive(true);
@@ -35,17 +47,11 @@ public class TrapPlatforms : MonoBehaviour, IUpdatable
 
     private bool IsPlayerInArea()
     {
-        Vector3 playerPosition = _player.position;
-        Vector3 platformPosition = transform.position;
+        Vector3 pos = _player.position;
+        float horizontalDistanceSqr = (new Vector2(pos.x, pos.z) - _platformXZ).sqrMagnitude;
+        float vertcialOffset = pos.y - transform.position.y;
 
-        float horizontalDistance = Vector2.Distance(
-            new Vector2(playerPosition.x, playerPosition.z),
-            new Vector2(platformPosition.x, platformPosition.z)
-        );
-
-        float verticalOffset = playerPosition.y - platformPosition.y;
-
-        return horizontalDistance < 0.5f && verticalOffset > 0.5f && verticalOffset < 2f;
+        return horizontalDistanceSqr < _triggerDistanceSqr && vertcialOffset > _minHeight && vertcialOffset < _maxHeight;
     }
 
 }
