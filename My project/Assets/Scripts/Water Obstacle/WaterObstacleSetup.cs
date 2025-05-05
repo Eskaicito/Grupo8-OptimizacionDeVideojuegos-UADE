@@ -40,14 +40,14 @@ public class WaterObstacleSetup : MonoBehaviour
         foreach (Transform child in obstaclesLeftRoot)
         {
             float offset = Random.Range(0f, Mathf.PI * 2f); // desfase entre 0 y 360°
-            var logic = new WaterObstacle(child, Vector3.right, speed, range, offset);
+            var logic = new WaterObstacle(child, new Vector3(0, 0, -1), speed, range, offset);
             updateManager.Register(logic);
         }
 
         foreach (Transform child in obstaclesRightRoot)
         {
             float offset = Random.Range(0f, Mathf.PI * 2f);
-            var logic = new WaterObstacle(child, Vector3.left, speed, range, offset);
+            var logic = new WaterObstacle(child, new Vector3(0,0,1), speed, range, offset);
             updateManager.Register(logic);
         }
     }

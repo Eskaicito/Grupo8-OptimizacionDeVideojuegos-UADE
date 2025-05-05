@@ -43,7 +43,7 @@ public class EnemyShooter : IUpdatable
         fireCallback?.Invoke(spawnPosition, direction);
 
         
-        Debug.Log($"[EnemyShooter] Disparo desde {spawnPosition} hacia {direction}");
+        //Debug.Log($"[EnemyShooter] Disparo desde {spawnPosition} hacia {direction}");
     }
 }
 

@@ -34,7 +34,7 @@ public class ProjectilePoolManager : MonoBehaviour
     {
         if (pooledProjectiles.Count == 0)
         {
-            Debug.LogWarning("¡El pool está vacío! No se pudo disparar.");
+            //Debug.LogWarning("¡El pool está vacío! No se pudo disparar.");
             return;
         }
 
