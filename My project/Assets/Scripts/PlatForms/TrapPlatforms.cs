@@ -7,7 +7,7 @@ public class TrapPlatforms : MonoBehaviour, IUpdatable
     [Header("Falling Cube")]
     [SerializeField] private Transform _fallingCube;
     [SerializeField] private Transform _objective;
-    [SerializeField] private float _fallingSpeed = 3f;
+    [SerializeField] private float _fallingSpeed = 50f;
     [SerializeField] private Vector3 _areaDetection = new Vector3(1f, 1f, 1f);
 
     private bool _isFalling = false;
@@ -35,8 +35,17 @@ public class TrapPlatforms : MonoBehaviour, IUpdatable
 
     private bool IsPlayerInArea()
     {
-        Vector3 center = transform.position + Vector3.up * 0.5f;
-        Bounds zone = new Bounds(center, _areaDetection);
-        return zone.Contains(_player.position);
+        Vector3 playerPosition = _player.position;
+        Vector3 platformPosition = transform.position;
+
+        float horizontalDistance = Vector2.Distance(
+            new Vector2(playerPosition.x, playerPosition.z),
+            new Vector2(platformPosition.x, platformPosition.z)
+        );
+
+        float verticalOffset = playerPosition.y - platformPosition.y;
+
+        return horizontalDistance < 0.5f && verticalOffset > 0.5f && verticalOffset < 2f;
     }
+
 }

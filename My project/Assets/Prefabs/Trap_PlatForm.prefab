@@ -279,5 +279,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _fallingCube: {fileID: 640749788302853238}
   _objective: {fileID: 1887625757253965747}
-  _fallingSpeed: 10
+  _fallingSpeed: 50
   _areaDetection: {x: 1, y: 1, z: 1}
