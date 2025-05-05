@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class PlayerController : IUpdatable
 {
@@ -53,7 +54,7 @@ public class PlayerController : IUpdatable
         ApplyMovement(deltaTime);
         AlignWithCamera(deltaTime);
 
-        if(jumpBufferCounter > 0f)
+        if (jumpBufferCounter > 0f)
         {
             jumpBufferCounter -= deltaTime;
         }
@@ -66,7 +67,7 @@ public class PlayerController : IUpdatable
 
         Vector3 moveDir = playerTransform.right * input.x + playerTransform.forward * input.z;
 
-        
+
         if (moveDir != Vector3.zero && !CheckWall(moveDir))
         {
             playerTransform.position += moveDir * moveSpeed * deltaTime;
@@ -87,7 +88,7 @@ public class PlayerController : IUpdatable
 
         isGrounded = CheckGrounded();
 
-       
+
         if (isGrounded && Input.GetKeyDown(KeyCode.Space))
         {
             velocity.y = jumpForce;
@@ -156,7 +157,7 @@ public class PlayerController : IUpdatable
         Vector3 cameraForward = cameraTransform.forward;
         cameraForward.y = 0f; // Ignore vertical component
 
-        if(cameraForward.sqrMagnitude > 0.01f)
+        if (cameraForward.sqrMagnitude > 0.01f)
         {
             Quaternion targetRotation = Quaternion.LookRotation(cameraForward);
             playerTransform.rotation = Quaternion.Lerp(playerTransform.rotation, targetRotation, deltaTime * 10f);
