@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 2232728857354416271}
   - component: {fileID: 362202788219419691}
   - component: {fileID: 3387495867237980972}
-  - component: {fileID: 1660518602619024945}
   m_Layer: 6
   m_Name: Ghost_PlatForm
   m_TagString: Untagged
@@ -123,19 +122,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _intervalMin: 3
   _intervalMax: 5
---- !u!114 &1660518602619024945
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6119294279779823896}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4bb1ca7bbe04f1a40a211c73cdccdd04, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _customUpdateManager: {fileID: 0}
-  _isGhostPlatform: 1
-  _isTrapPlatform: 0
-  _player: {fileID: 0}
+  _warningTime: 1
+  _normalColor: {r: 1, g: 1, b: 1, a: 1}
+  _warningColor: {r: 1, g: 0, b: 0, a: 1}

@@ -5,28 +5,23 @@ using UnityEngine;
 public class PlatformSetUp : MonoBehaviour
 {
     [SerializeField] private CustomUpdateManager _customUpdateManager;
-    [SerializeField] private bool _isGhostPlatform = false;
-    [SerializeField] private bool _isTrapPlatform = false;
     [SerializeField] private Transform _player;
 
     private void Awake()
     {
-        if(_isGhostPlatform)
+       
+        GhostPlatforms[] ghostPlatformsArray = FindObjectsByType<GhostPlatforms>(FindObjectsSortMode.None);
+        foreach (var ghost in ghostPlatformsArray)
         {
-            GhostPlatforms ghostPlatform = GetComponent<GhostPlatforms>();
-            if (ghostPlatform != null)
-            {
-                _customUpdateManager.Register(ghostPlatform);
-            }
+            _customUpdateManager.Register(ghost);
         }
-        if (_isTrapPlatform)
+
+       
+        TrapPlatforms[] trapPlatformsArray = FindObjectsByType<TrapPlatforms>(FindObjectsSortMode.None);
+        foreach (var trap in trapPlatformsArray)
         {
-            TrapPlatforms trapPlatform = GetComponent<TrapPlatforms>();
-            if (trapPlatform != null)
-            {
-                trapPlatform.SetPlayer(_player);
-                _customUpdateManager.Register(trapPlatform);
-            }
+            trap.SetPlayer(_player);
+            _customUpdateManager.Register(trap);
         }
     }
 }
