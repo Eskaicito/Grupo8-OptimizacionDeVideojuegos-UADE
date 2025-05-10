@@ -4,30 +4,32 @@ using UnityEngine;
 
 public class BulletLogic : IUpdatable
 {
-    private Transform transform;
-    private Vector3 direction;
-    private float speed;
-    private float lifetime;
+    private readonly Transform transform;
+    private readonly Transform spawner;
+    private readonly Vector3 direction;
+    private readonly float speed;
+    private readonly float lifetime;
+    private readonly float fireRate;
+
     private float timer;
-    private Transform spawner;
-    private float fireRate;
     private float fireTimer;
 
     public BulletLogic(
         Transform bulletTransform,
-        Vector3 dir,
-        float spd,
-        float life,
+        Vector3 direction,
+        float speed,
+        float lifetime,
         Transform spawnerTransform,
-        float rate)
+        float fireRate)
     {
-        transform = bulletTransform;
-        direction = dir.normalized;
-        speed = spd;
-        lifetime = life;
-        spawner = spawnerTransform;
-        fireRate = rate;
-        timer = lifetime;   
+        this.transform = bulletTransform;
+        this.direction = direction.normalized;
+        this.speed = speed;
+        this.lifetime = lifetime;
+        this.spawner = spawnerTransform;
+        this.fireRate = fireRate;
+
+        timer = lifetime; 
         fireTimer = 0f;
     }
 
@@ -37,7 +39,6 @@ public class BulletLogic : IUpdatable
 
         if (fireTimer <= 0f)
         {
-           
             transform.position = spawner.position;
             timer = 0f;
             fireTimer = fireRate;

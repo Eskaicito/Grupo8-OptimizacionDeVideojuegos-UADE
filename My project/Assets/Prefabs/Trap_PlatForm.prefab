@@ -150,7 +150,6 @@ GameObject:
   - component: {fileID: 8045501928255285764}
   - component: {fileID: 1723105341533587556}
   - component: {fileID: 1524751389524457892}
-  - component: {fileID: 2883525125072663599}
   m_Layer: 6
   m_Name: Trap_PlatForm
   m_TagString: Untagged
@@ -248,18 +247,3 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &2883525125072663599
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7686657803360805867}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6d8a65b5fb06257499ab1a680bd306e5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _fallingCube: {fileID: 640749788302853238}
-  _objective: {fileID: 1887625757253965747}
-  _fallingSpeed: 50

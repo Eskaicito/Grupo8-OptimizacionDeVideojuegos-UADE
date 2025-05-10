@@ -4,73 +4,68 @@ using UnityEngine;
 
 public class GhostPlatforms : MonoBehaviour, IUpdatable
 {
-    [SerializeField] private float _intervalMin = 3f;
-    [SerializeField] private float _intervalMax = 5f;
-    [SerializeField] private float _warningTime = 1f; // Warning time before disappearing
-    [SerializeField] private Color _normalColor = Color.white; 
-    [SerializeField] private Color _warningColor = Color.red; 
+    private readonly Renderer _renderer;
+    private readonly Collider _collider;
+    private readonly MaterialPropertyBlock block;
+    private readonly Color normalColor;
+    private readonly Color warningColor;
 
-    private float _timer;
-    private float _actualInterval;
-    private bool _isActive =  true;
-    private bool _hasWarned = false;
+    private float timer;
+    private float actualInterval;
+    private readonly float warningTime;
+    private readonly float intervalMin;
+    private readonly float intervalMax;
 
-    private Renderer _renderer;
-    private Collider _collider;
-    private MaterialPropertyBlock _materialBlock;
+    private bool isActive = true;
+    private bool hasWarned = false;
 
-    private void Awake()
+    private static readonly int ColorID = Shader.PropertyToID("_Color");
+
+    public GhostPlatforms(Renderer rend, Collider col, float min, float max, float warning, Color normal, Color warningCol)
     {
-        _renderer = GetComponent<Renderer>();
-        _collider = GetComponent<Collider>();
-        _materialBlock = new MaterialPropertyBlock();
+        _renderer = rend;
+        _collider = col;
+        intervalMin = min;
+        intervalMax = max;
+        warningTime = warning;
+        normalColor = normal;
+        warningColor = warningCol;
 
-        _actualInterval = Random.Range(_intervalMin, _intervalMax);
-        _isActive = true;
-        _timer = 0f;
-        _hasWarned = false;
-
-        SetColor(_normalColor);
+        block = new MaterialPropertyBlock();
+        actualInterval = Random.Range(intervalMin, intervalMax);
+        timer = 0f;
+        SetColor(normalColor);
     }
 
     public void Tick(float deltaTime)
     {
-        _timer += deltaTime;
+        timer += deltaTime;
 
-        if(_isActive && !_hasWarned && _actualInterval - _timer <= _warningTime)
+        if (isActive && !hasWarned && actualInterval - timer <= warningTime)
         {
-            // Change color to warning color
-            SetColor(_warningColor);
-            _hasWarned = true;
+            SetColor(warningColor);
+            hasWarned = true;
         }
-      
 
-
-        if (_timer >= _actualInterval)
+        if (timer >= actualInterval)
         {
-            _isActive = !_isActive;
-            _renderer.enabled = _isActive;
-            _collider.enabled = _isActive;
+            isActive = !isActive;
+            _renderer.enabled = isActive;
+            _collider.enabled = isActive;
 
-            _timer = 0f;
-            _actualInterval = Random.Range(_intervalMin, _intervalMax);
-            _hasWarned = false;
+            timer = 0f;
+            actualInterval = Random.Range(intervalMin, intervalMax);
+            hasWarned = false;
 
-            // Reset color to normal color
-            if (_isActive)
-            {
-                SetColor(_normalColor);
-            }
-
+            if (isActive)
+                SetColor(normalColor);
         }
     }
 
     private void SetColor(Color color)
     {
-        _materialBlock.SetColor("_Color", color);
-        _renderer.SetPropertyBlock(_materialBlock);
+        block.SetColor(ColorID, color);
+        _renderer.SetPropertyBlock(block);
     }
-
-
 }
 

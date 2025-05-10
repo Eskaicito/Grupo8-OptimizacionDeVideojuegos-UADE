@@ -9,22 +9,26 @@ public class SpawnerSetup : MonoBehaviour
     [SerializeField] private float bulletLifetime = 3f;
     [SerializeField] private float fireRate = 1f;
 
+    private static readonly int BulletChildIndex = 0;
+
     void Awake()
     {
         var updateManager = FindFirstObjectByType<CustomUpdateManager>();
 
-        foreach (var spawner in spawnerPoints)
+        foreach (Transform spawner in spawnerPoints)
         {
-            var bulletGO = spawner.GetChild(0).gameObject;
-            var bulletLogic = new BulletLogic(
-                bulletGO.transform,
-                spawner.forward,  
+            var bullet = spawner.GetChild(BulletChildIndex).transform;
+
+            var logic = new BulletLogic(
+                bullet,
+                spawner.forward,
                 bulletSpeed,
                 bulletLifetime,
                 spawner,
                 fireRate
             );
-            updateManager.Register(bulletLogic);
+
+            updateManager.Register(logic);
         }
     }
 }
