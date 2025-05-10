@@ -27,7 +27,7 @@ public class BulletLogic : IUpdatable
         lifetime = life;
         spawner = spawnerTransform;
         fireRate = rate;
-        timer = lifetime;    // al inicio, está apagada
+        timer = lifetime;   
         fireTimer = 0f;
     }
 
@@ -37,7 +37,7 @@ public class BulletLogic : IUpdatable
 
         if (fireTimer <= 0f)
         {
-            // Reiniciar bala
+           
             transform.position = spawner.position;
             timer = 0f;
             fireTimer = fireRate;
