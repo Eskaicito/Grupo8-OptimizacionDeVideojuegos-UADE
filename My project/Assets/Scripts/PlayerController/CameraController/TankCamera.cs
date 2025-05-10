@@ -10,7 +10,7 @@ public class TankCamera : IUpdatable
 
     private float distance = 9f;
     private float height = 2f;
-    private float rotationSpeed = 180f;
+    private float rotationSpeed = 2000f;
     private float smoothSpeed = 10f;
 
     private float currentYaw;
