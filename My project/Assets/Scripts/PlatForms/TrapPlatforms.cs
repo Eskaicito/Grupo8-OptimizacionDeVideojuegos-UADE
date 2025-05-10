@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -22,7 +23,6 @@ public class TrapPlatforms : MonoBehaviour, IUpdatable
     {
         _platformXZ = new Vector2(transform.position.x, transform.position.z);
     }
-
     public void SetPlayer(Transform player)
     {
         this._player = player;
