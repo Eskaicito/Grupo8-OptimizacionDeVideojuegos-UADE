@@ -80,30 +80,34 @@ using UnityEngine;
 }*/
 public class WaterObstacle : IUpdatable
 {
-    private Transform transform;
-    private Vector3 startPosition;
-    private Vector3 moveDirection;
-    private float moveSpeed;
-    private float moveRange;
-    private float moveTimer;
-    private float phaseOffset; // <<-- nuevo
+    private readonly Transform transform;
+    private readonly Vector3 startPosition;
+    private readonly Vector3 moveDirection;
+    private readonly float moveSpeed;
+    private readonly float moveRange;
+    private readonly float phaseOffset;
 
-    public WaterObstacle(Transform transform, Vector3 direction, float speed, float range, float phaseOffset = 0f)
+    private float moveTimer;
+
+    public WaterObstacle(Transform transform, Vector3 direction, float speed, float range, float offset)
     {
         this.transform = transform;
         this.startPosition = transform.position;
         this.moveDirection = direction.normalized;
         this.moveSpeed = speed;
         this.moveRange = range;
+        this.phaseOffset = offset;
         this.moveTimer = 0f;
-        this.phaseOffset = phaseOffset;
     }
 
     public void Tick(float deltaTime)
     {
         moveTimer += deltaTime;
 
+       
         float offset = Mathf.Sin(moveTimer * moveSpeed + phaseOffset) * moveRange;
-        transform.position = startPosition + moveDirection * offset;
+        Vector3 newPos = startPosition + moveDirection * offset;
+
+        transform.position = newPos;
     }
 }

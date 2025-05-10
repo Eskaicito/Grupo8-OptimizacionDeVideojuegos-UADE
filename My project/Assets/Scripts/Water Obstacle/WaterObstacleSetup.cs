@@ -3,51 +3,34 @@ using System.Collections.Generic;
 
 using UnityEngine;
 
-/*public class WaterObstacleSetup : MonoBehaviour
-{
-    public Transform obstacleTransform;
-    public Transform playerTransform;
-    CustomUpdateManager customUpdateManager;
-
-    public Vector3 moveDirection = Vector3.forward;
-    public float speed = 2f;
-    public float moveDuration = 3f;
-    public float cooldown = 2f;
-    public Vector3 boundsSize = new Vector3(2f, 1f, 1f);
-    public Vector3 playerSize = new Vector3(1f, 1f, 1f);
-
-    void Awake()
-    {
-        var playerController = new PlayerController(playerTransform, playerSize);
-        var waterObstacle = new WaterObstacle(obstacleTransform, moveDirection, speed, moveDuration, cooldown, boundsSize, playerController);
-        if (customUpdateManager != null) { Debug.Log("no esta el custom manager"); }
-        customUpdateManager.Register(waterObstacle);
-        //customUpdateManager.Register(playerController);
-    }
-}*/
 public class WaterObstacleSetup : MonoBehaviour
 {
-    public Transform obstaclesLeftRoot;
-    public Transform obstaclesRightRoot;
+    [SerializeField] private Transform obstaclesLeftRoot;
+    [SerializeField] private Transform obstaclesRightRoot;
+    [SerializeField] private float speed = 1f;
+    [SerializeField] private float range = 3f;
 
-    public float speed = 1f;
-    public float range = 3f;
+    private static readonly Vector3 LeftDirection = new Vector3(0f, 0f, -1f);
+    private static readonly Vector3 RightDirection = new Vector3(0f, 0f, 1f);
 
-    void Awake()
+    private void Awake()
     {
         var updateManager = FindFirstObjectByType<CustomUpdateManager>();
 
-        foreach (Transform child in obstaclesLeftRoot)
-        {
-            float offset = Random.Range(0f, Mathf.PI * 2f); // desfase entre 0 y 360°
-            var logic = new WaterObstacle(child, new Vector3(0, 0, -1), speed, range, offset);
-            updateManager.Register(logic);
-        }
+        RegisterObstacles(obstaclesLeftRoot, LeftDirection, updateManager);
+        RegisterObstacles(obstaclesRightRoot, RightDirection, updateManager);
+    }
 
-        foreach (Transform child in obstaclesRightRoot)
+    private void RegisterObstacles(Transform root, Vector3 direction, CustomUpdateManager updateManager)
+    {
+        int count = root.childCount;
+
+        for (int i = 0; i < count; i++)
         {
+            Transform obstacle = root.GetChild(i);
             float offset = Random.Range(0f, Mathf.PI * 2f);
-            var logic = new WaterObstacle(child, new Vector3(0,0,1), speed, range, offset);
+
+            var logic = new WaterObstacle(obstacle, direction, speed, range, offset);
             updateManager.Register(logic);
         }
     }
