@@ -1,18 +1,52 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BulletLogic : MonoBehaviour
+public class BulletLogic : IUpdatable
 {
-    // Start is called before the first frame update
-    void Start()
+    private Transform transform;
+    private Vector3 direction;
+    private float speed;
+    private float lifetime;
+    private float timer;
+    private Transform spawner;
+    private float fireRate;
+    private float fireTimer;
+
+    public BulletLogic(
+        Transform bulletTransform,
+        Vector3 dir,
+        float spd,
+        float life,
+        Transform spawnerTransform,
+        float rate)
     {
-        
+        transform = bulletTransform;
+        direction = dir.normalized;
+        speed = spd;
+        lifetime = life;
+        spawner = spawnerTransform;
+        fireRate = rate;
+        timer = lifetime;    // al inicio, está apagada
+        fireTimer = 0f;
     }
 
-    // Update is called once per frame
-    void Update()
+    public void Tick(float deltaTime)
     {
-        
+        fireTimer -= deltaTime;
+
+        if (fireTimer <= 0f)
+        {
+            // Reiniciar bala
+            transform.position = spawner.position;
+            timer = 0f;
+            fireTimer = fireRate;
+        }
+
+        if (timer < lifetime)
+        {
+            transform.position += direction * speed * deltaTime;
+            timer += deltaTime;
+        }
     }
 }

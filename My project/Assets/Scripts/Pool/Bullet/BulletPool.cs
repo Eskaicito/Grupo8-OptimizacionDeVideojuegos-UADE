@@ -4,44 +4,37 @@ using UnityEngine;
 
 public class BulletPool : MonoBehaviour
 {
-    [SerializeField] private GameObject bulletPrefab;
-    [SerializeField] private int poolSize = 50;
+    //[SerializeField] private List<GameObject> bulletObjects;
 
-    private Queue<GameObject> bulletPool = new Queue<GameObject>();
-    private CustomUpdateManager updateManager;
+    //private Queue<GameObject> bulletPool = new Queue<GameObject>();
 
-    void Awake()
-    {
-        updateManager = FindFirstObjectByType<CustomUpdateManager>();
+    //void Awake()
+    //{
+    //    foreach (var bullet in bulletObjects)
+    //    {
+    //        bullet.SetActive(false);
+    //        bulletPool.Enqueue(bullet);
+    //    }
+    //}
 
-        for (int i = 0; i < poolSize; i++)
-        {
-            var bullet = Instantiate(bulletPrefab, transform);
-            bullet.SetActive(false);
-            bulletPool.Enqueue(bullet);
-        }
-    }
+    //public GameObject GetBullet()
+    //{
+    //    if (bulletPool.Count > 0)
+    //    {
+    //        var bulletGO = bulletPool.Dequeue();
+    //        bulletGO.SetActive(true);
+    //        return bulletGO;
+    //    }
+    //    else
+    //    {
+    //        Debug.LogWarning("No bullets available in pool!");
+    //        return null;
+    //    }
+    //}
 
-    public void SpawnBullet(Vector3 position, Vector3 direction, float speed, float lifetime)
-    {
-        if (bulletPool.Count > 0)
-        {
-            var bulletGO = bulletPool.Dequeue();
-            bulletGO.transform.position = position;
-            bulletGO.SetActive(true);
-
-            var bulletLogic = new BulletLogic(
-                bulletGO.transform, direction, speed, lifetime,
-                bulletGO, this, updateManager
-            );
-
-            updateManager.Register(bulletLogic);
-        }
-    }
-
-    public void ReturnBullet(GameObject bulletGO)
-    {
-        bulletGO.SetActive(false);
-        bulletPool.Enqueue(bulletGO);
-    }
+    //public void ReturnBullet(GameObject bulletGO)
+    //{
+    //    bulletGO.SetActive(false);
+    //    bulletPool.Enqueue(bulletGO);
+    //}
 }
