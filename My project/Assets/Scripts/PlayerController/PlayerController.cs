@@ -67,9 +67,16 @@ public class PlayerController : IUpdatable
             AlignWithCamera(deltaTime);
         }
 
+
         HandleGravity(deltaTime);
         ApplyJump();
         ApplyVerticalMovement(deltaTime);
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Debug.Log("Saliendo del juego...");
+            Application.Quit();
+        }
     }
 
     private void ReadInput()
