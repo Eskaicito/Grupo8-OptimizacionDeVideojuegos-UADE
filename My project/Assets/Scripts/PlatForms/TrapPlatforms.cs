@@ -1,57 +1,54 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class TrapPlatforms : MonoBehaviour, IUpdatable
 {
-    [Header("Falling Cube")]
-    [SerializeField] private Transform _fallingCube;
-    [SerializeField] private Transform _objective;
-    [SerializeField] private float _fallingSpeed = 200f;
-    //[SerializeField] private Vector3 _areaDetection = new Vector3(5f, 5f, 5f);
 
-    private bool _isFalling = false;
-    private Transform _player;
+    private readonly Transform platform;
+    private readonly Transform fallingCube;
+    private readonly Transform objective;
+    private readonly Transform player;
 
-    private Vector2 _platformXZ;
-    private float _minHeight = 0.5f;
-    private float _maxHeight = 2f;
-    private float _triggerDistanceSqr = 0.25f;
+    private readonly float fallingSpeed;
+    private readonly Vector2 platformXZ;
+    private const float MinHeight = 0.5f;
+    private const float MaxHeight = 2f;
+    private const float TriggerDistanceSqr = 0.25f;
 
-    private void Awake()
+    private bool isFalling = false;
+
+    public TrapPlatforms(Transform platform, Transform cube, Transform goal, Transform player, float speed)
     {
-        _platformXZ = new Vector2(transform.position.x, transform.position.z);
-    }
-    public void SetPlayer(Transform player)
-    {
-        this._player = player;
+        this.platform = platform;
+        fallingCube = cube;
+        objective = goal;
+        this.player = player;
+        fallingSpeed = speed;
+
+        platformXZ = new Vector2(platform.position.x, platform.position.z);
     }
 
     public void Tick(float deltaTime)
     {
-        if (_player == null) return;
-       
-        if (!_isFalling && IsPlayerInArea())
+        if (!isFalling && IsPlayerInArea())
         {
-            _isFalling = true;
-            _fallingCube.gameObject.SetActive(true);
+            isFalling = true;
+            fallingCube.gameObject.SetActive(true);
         }
 
-        if (_isFalling && _fallingCube != null)
+        if (isFalling)
         {
-            _fallingCube.position = Vector3.MoveTowards(_fallingCube.position, _objective.position, _fallingSpeed * deltaTime);
-
+            fallingCube.position = Vector3.MoveTowards(fallingCube.position, objective.position, fallingSpeed * deltaTime);
         }
     }
 
     private bool IsPlayerInArea()
     {
-        Vector3 pos = _player.position;
-        float horizontalDistanceSqr = (new Vector2(pos.x, pos.z) - _platformXZ).sqrMagnitude;
-        float vertcialOffset = pos.y - transform.position.y;
+        Vector3 pos = player.position;
+        float hDist = (new Vector2(pos.x, pos.z) - platformXZ).sqrMagnitude;
+        float vOffset = pos.y - platform.position.y;
 
-        return horizontalDistanceSqr < _triggerDistanceSqr && vertcialOffset > _minHeight && vertcialOffset < _maxHeight;
+        return hDist < TriggerDistanceSqr && vOffset > MinHeight && vOffset < MaxHeight;
     }
-
 }

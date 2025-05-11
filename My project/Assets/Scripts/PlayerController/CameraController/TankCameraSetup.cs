@@ -14,9 +14,9 @@ public class TankCameraSetup : MonoBehaviour
         updateManager.Register(cameraLogic);
     }
 
-    void OnDestroy()
-    {
-        var updateManager = FindFirstObjectByType<CustomUpdateManager>();
-        updateManager?.Unregister(cameraLogic);
-    }
+    //void OnDestroy()
+    //{
+    //    var updateManager = FindFirstObjectByType<CustomUpdateManager>();
+    //    updateManager?.Unregister(cameraLogic);
+    //}
 }
