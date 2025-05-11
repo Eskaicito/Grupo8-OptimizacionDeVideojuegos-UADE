@@ -14,11 +14,13 @@ public class TankCamera : IUpdatable
     private const float height = 2f;
     private const float smoothSpeed = 10f;
     private const float minDistance = 1.5f;
+    private const float sphereRadius = 0.3f;
 
     private static readonly Vector3 OffsetVector = new Vector3(0f, 0f, -distance);
     private static readonly Vector3 LookAtOffset = new Vector3(0f, 1.5f, 0f);
 
     private readonly LayerMask wallMask;
+    private readonly RaycastHit[] _cameraHits = new RaycastHit[1];
 
     public TankCamera(Transform cameraTransform, Transform target)
     {
@@ -30,7 +32,6 @@ public class TankCamera : IUpdatable
 
     public void Tick(float deltaTime)
     {
-
         float rotationInput = 0f;
 
         if (Input.GetKey(KeyCode.Q))
@@ -47,11 +48,13 @@ public class TankCamera : IUpdatable
 
         Vector3 desiredDirection = offset.normalized;
         float desiredDistance = offset.magnitude;
-
         Vector3 finalPosition;
 
-        if (Physics.SphereCast(targetHead, 0.3f, desiredDirection, out RaycastHit hit, desiredDistance, wallMask))
+        int hitCount = Physics.SphereCastNonAlloc(targetHead, sphereRadius, desiredDirection, _cameraHits, desiredDistance, wallMask);
+
+        if (hitCount > 0)
         {
+            var hit = _cameraHits[0];
             float correctedDistance = Mathf.Max(minDistance, hit.distance - 0.1f);
             finalPosition = targetHead + desiredDirection * correctedDistance;
         }
@@ -61,7 +64,6 @@ public class TankCamera : IUpdatable
         }
 
         cameraTransform.position = Vector3.Lerp(cameraTransform.position, finalPosition, smoothSpeed * deltaTime);
-
         cameraTransform.LookAt(targetTransform.position + LookAtOffset);
     }
 }
