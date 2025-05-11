@@ -17,8 +17,9 @@ public class MainMenu : MonoBehaviour
 
     private void PlayGame()
     {
+        LoadingData.SceneToLoad = "TestRoomZ1"; // Set the scene to load in LoadingData
         // Load the game scene
-        SceneManager.LoadScene("TestRoomZ1");
+        SceneManager.LoadScene("LoadingScreen");
     }
 
     private void ExitGame()
