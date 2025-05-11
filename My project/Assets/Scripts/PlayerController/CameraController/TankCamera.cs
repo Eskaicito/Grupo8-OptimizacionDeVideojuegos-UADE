@@ -16,7 +16,6 @@ public class TankCamera : IUpdatable
     private const float minDistance = 1.5f;
     private const float sphereRadius = 0.3f;
 
-    private static readonly Vector3 OffsetVector = new Vector3(0f, 0f, -distance);
     private static readonly Vector3 LookAtOffset = new Vector3(0f, 1.5f, 0f);
 
     private readonly LayerMask wallMask;
@@ -42,10 +41,11 @@ public class TankCamera : IUpdatable
         if (rotationInput != 0f)
             currentYaw += rotationInput * rotationSpeed * deltaTime;
 
-        Quaternion rotation = Quaternion.Euler(0f, currentYaw, 0f);
-        Vector3 offset = rotation * OffsetVector;
-        Vector3 targetHead = targetTransform.position + Vector3.up * height;
+        float yawRad = currentYaw * Mathf.Deg2Rad;
+        Vector3 forward = new Vector3(Mathf.Sin(yawRad), 0f, Mathf.Cos(yawRad));
+        Vector3 offset = forward * -distance;
 
+        Vector3 targetHead = targetTransform.position + Vector3.up * height;
         Vector3 desiredDirection = offset.normalized;
         float desiredDistance = offset.magnitude;
         Vector3 finalPosition;
