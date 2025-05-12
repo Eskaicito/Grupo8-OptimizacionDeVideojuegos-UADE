@@ -2,22 +2,19 @@ using UnityEngine;
 
 public class PlayerSetup : MonoBehaviour
 {
-    private PlayerController playerLogic;
-    [SerializeField] private Rigidbody playerRigidbody;
     [SerializeField] private LayerMask groundMask;
+    [SerializeField] private LayerMask wallMask;
+    [SerializeField] private LayerMask obstacleMask;
+    [SerializeField] private LayerMask bulletMask;
     [SerializeField] private float moveSpeed;
     [SerializeField] private float jumpForce;
+    [SerializeField] private Transform respawn;  
 
     private void Awake()
     {
-        
-        //if (playerRigidbody != null)
-        //{
-        //    playerRigidbody.isKinematic = true;
-        //    playerRigidbody.useGravity = false;
-        //}
-
-        playerLogic = new PlayerController(transform, playerRigidbody, groundMask, moveSpeed, jumpForce);
+        var inputHandler = new InputManager();
+        var collisionHandler = new CollisionManager(transform, groundMask, wallMask, obstacleMask, bulletMask);
+        var playerLogic = new PlayerController(transform, inputHandler, collisionHandler, moveSpeed, jumpForce, respawn);
 
         var cam = Camera.main;
         if (cam != null)
@@ -26,6 +23,8 @@ public class PlayerSetup : MonoBehaviour
         }
 
         var updateManager = FindFirstObjectByType<CustomUpdateManager>();
+        updateManager.Register(inputHandler);
+        updateManager.Register(collisionHandler);
         updateManager.Register(playerLogic);
     }
 }

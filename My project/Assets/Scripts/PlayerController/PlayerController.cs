@@ -3,46 +3,28 @@ using UnityEngine;
 public class PlayerController : IUpdatable
 {
     private readonly Transform playerTransform;
-    private readonly Rigidbody playerRigidbody;
-    private Transform cameraTransform; 
+    private readonly InputManager inputHandler;
+    private readonly CollisionManager collisionHandler;
+    private Transform cameraTransform;
 
     private Vector3 velocity;
-    private Vector3 inputVector;
-    private Vector3 moveDirection;
+    private Vector3 cachedMove = new Vector3();
+    private  Vector3 cachedVerticalMove = new Vector3();
 
     private readonly float moveSpeed;
     private readonly float jumpForce;
     private const float gravity = -20f;
 
-    private float jumpBufferCounter;
-    private float coyoteTimeCounter;
+    private readonly Transform RespawnPosition;
 
-    private bool isGrounded;
-
-    private readonly RaycastHit[] hitResults = new RaycastHit[4];
-    private readonly LayerMask groundMask;
- 
-
-    private static readonly Vector3 UpOffset = new Vector3(0f, 0.05f, 0f);
-    private static readonly Vector3 RespawnPosition = new Vector3(0f, 2f, 0f);
-
-    private const float groundCheckDistance = 0.3f;
-    //private const float wallCheckDistance = 0.2f;
-    private const float characterRadius = 0.3f;
-
-    private const float jumpBufferTime = 0.15f;
-    private const float coyoteTime = 0.2f;
-
-    public PlayerController(Transform playerTransform, Rigidbody playerRigidbody, LayerMask groundMask, float moveSpeed, float jumpForce)
+    public PlayerController(Transform playerTransform, InputManager inputHandler, CollisionManager collisionHandler, float moveSpeed, float jumpForce, Transform Respawn)
     {
         this.playerTransform = playerTransform;
-        this.playerRigidbody = playerRigidbody;
-        this.groundMask = groundMask;
+        this.inputHandler = inputHandler;
+        this.collisionHandler = collisionHandler;
         this.moveSpeed = moveSpeed;
         this.jumpForce = jumpForce;
-
-        playerRigidbody.isKinematic = true;
-        playerRigidbody.useGravity = false;
+        this.RespawnPosition = Respawn; 
     }
 
     public void SetCameraTransform(Transform camTransform)
@@ -52,91 +34,73 @@ public class PlayerController : IUpdatable
 
     public void Tick(float deltaTime)
     {
-        isGrounded = CheckGrounded();
+        HandleGravity(deltaTime);
+        ApplyVerticalMovement(deltaTime);
 
-        coyoteTimeCounter = isGrounded ? coyoteTime : coyoteTimeCounter - deltaTime;
-        jumpBufferCounter -= deltaTime;
-
-        ReadInput();
-
-        if (inputVector.sqrMagnitude > 0.01f)
+        Vector3 moveInput = inputHandler.MoveInput;
+        if (moveInput.sqrMagnitude > 0.01f)
         {
-            HandleMovement(deltaTime);
+            Move(deltaTime, moveInput);
             AlignWithCamera(deltaTime);
         }
 
-        HandleGravity(deltaTime);
-        ApplyJump();
-        ApplyVerticalMovement(deltaTime);
-
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (inputHandler.JumpPressed && collisionHandler.IsGrounded)
         {
-            Debug.Log("Saliendo del juego...");
-            Application.Quit();
+            velocity.y = jumpForce;
+        }
+
+        // Si tocamos obstáculo o bala, aplicar empuje
+        if (collisionHandler.IsTouchingObstacle)
+        {
+            ApplyExternalPush(collisionHandler.LastObstacleDirection, 300f, deltaTime);
+        }
+
+        if (collisionHandler.IsTouchingBullet)
+        {
+            ApplyExternalPush(collisionHandler.LastBulletDirection, 400f, deltaTime);
         }
     }
-
-    private void ReadInput()
+    private void ApplyExternalPush(Vector3 direction, float force, float deltaTime)
     {
-        inputVector.Set(Input.GetAxisRaw("Horizontal"), 0f, Input.GetAxisRaw("Vertical"));
-
-        if (inputVector.sqrMagnitude > 1f)
-            inputVector.Normalize();
-
-        if (Input.GetKeyDown(KeyCode.Space))
-            jumpBufferCounter = jumpBufferTime;
+        playerTransform.position += direction.normalized * force * deltaTime;
     }
-
-    private void HandleMovement(float deltaTime)
+    private void Move(float deltaTime, Vector3 inputVector)
     {
-        moveDirection = playerTransform.right * inputVector.x + playerTransform.forward * inputVector.z;
+        cachedMove.Set(
+            playerTransform.right.x * inputVector.x + playerTransform.forward.x * inputVector.z,
+            0f,
+            playerTransform.right.z * inputVector.x + playerTransform.forward.z * inputVector.z
+        );
 
-        if (moveDirection.sqrMagnitude > 0.01f)
-        {
-            playerTransform.position += moveDirection * moveSpeed * deltaTime;
-        }
+        cachedMove *= moveSpeed * deltaTime;
+        playerTransform.position += cachedMove;
     }
 
     private void HandleGravity(float deltaTime)
     {
-        if (!isGrounded)
-            velocity.y += gravity * deltaTime;
-        else if (velocity.y < 0f)
-            velocity.y = 0f;
-    }
-
-    private void ApplyJump()
-    {
-        if (jumpBufferCounter > 0f && coyoteTimeCounter > 0f)
+        if (collisionHandler.IsGrounded && velocity.y <= 0f)
         {
-            velocity.y = jumpForce;
-            jumpBufferCounter = 0f;
-            coyoteTimeCounter = 0f;
+            // Si estamos tocando el suelo y cayendo, anclamos Y en 0
+            velocity.y = 0f;
+        }
+        else
+        {
+            // Acumular gravedad
+            velocity.y += gravity * deltaTime;
         }
     }
 
     private void ApplyVerticalMovement(float deltaTime)
     {
-        playerTransform.position += new Vector3(0f, velocity.y * deltaTime, 0f);
+        cachedVerticalMove.Set(0f, velocity.y * deltaTime, 0f);
+        playerTransform.position += cachedVerticalMove;
 
         if (playerTransform.position.y < -10f)
         {
-            playerTransform.position = RespawnPosition;
+            playerTransform.position = RespawnPosition.position;
             velocity.y = 0f;
         }
     }
-
-    private bool CheckGrounded()
-    {
-        Vector3 origin = playerTransform.position + UpOffset;
-        return Physics.SphereCastNonAlloc(origin, characterRadius, Vector3.down, hitResults, groundCheckDistance, groundMask) > 0;
-    }
-
-    //private bool CheckWall(Vector3 direction)
-    //{
-    //    Vector3 origin = playerTransform.position + UpOffset;
-    //    return Physics.SphereCastNonAlloc(origin, characterRadius, direction.normalized, hitResults, wallCheckDistance, wallMask) > 0;
-    //}
 
     private void AlignWithCamera(float deltaTime)
     {
