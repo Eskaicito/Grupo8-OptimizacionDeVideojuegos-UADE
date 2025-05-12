@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1872596302698787473}
   - component: {fileID: 5682181531309800251}
   - component: {fileID: 3810451751123831578}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: BaseWaterObstacle
   m_TagString: Untagged
   m_Icon: {fileID: 0}

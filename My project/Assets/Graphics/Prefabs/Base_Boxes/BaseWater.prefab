@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 434431069620796178}
   - component: {fileID: 2013654468668218756}
   - component: {fileID: 3757406228847815667}
-  m_Layer: 6
+  m_Layer: 4
   m_Name: BaseWater
   m_TagString: Untagged
   m_Icon: {fileID: 0}

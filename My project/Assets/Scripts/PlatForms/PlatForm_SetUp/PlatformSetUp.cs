@@ -16,12 +16,6 @@ public class PlatformSetUp : MonoBehaviour
     [SerializeField] private Color normalColor = Color.white;
     [SerializeField] private Color warningColor = Color.red;
 
-    [Header("Trap Platforms")]
-    [SerializeField] private List<Transform> trapBases;
-    [SerializeField] private List<Transform> fallingCubes;
-    [SerializeField] private List<Transform> targets;
-    [SerializeField] private float fallingSpeed = 200f;
-
     void Awake()
     {
         for (int i = 0; i < ghostRenderers.Count; i++)
@@ -38,16 +32,5 @@ public class PlatformSetUp : MonoBehaviour
             updateManager.Register(logic);
         }
 
-        for (int i = 0; i < trapBases.Count; i++)
-        {
-            var logic = new TrapPlatforms(
-                trapBases[i],
-                fallingCubes[i],
-                targets[i],
-                player,
-                fallingSpeed
-            );
-            updateManager.Register(logic);
-        }
     }
 }
