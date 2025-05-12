@@ -4,11 +4,10 @@ public class PlayerController : IUpdatable
 {
     private readonly Transform playerTransform;
     private readonly Rigidbody playerRigidbody;
-    private Transform cameraTransform; 
+    private Transform cameraTransform;
 
     private Vector3 velocity;
     private Vector3 inputVector;
-    private Vector3 moveDirection;
 
     private readonly float moveSpeed;
     private readonly float jumpForce;
@@ -19,17 +18,14 @@ public class PlayerController : IUpdatable
 
     private bool isGrounded;
 
-    private readonly RaycastHit[] hitResults = new RaycastHit[4];
+    private readonly RaycastHit[] hitResults = new RaycastHit[1];
     private readonly LayerMask groundMask;
- 
 
     private static readonly Vector3 UpOffset = new Vector3(0f, 0.05f, 0f);
     private static readonly Vector3 RespawnPosition = new Vector3(0f, 2f, 0f);
 
     private const float groundCheckDistance = 0.3f;
-    //private const float wallCheckDistance = 0.2f;
     private const float characterRadius = 0.3f;
-
     private const float jumpBufferTime = 0.15f;
     private const float coyoteTime = 0.2f;
 
@@ -61,7 +57,7 @@ public class PlayerController : IUpdatable
 
         if (inputVector.sqrMagnitude > 0.01f)
         {
-            HandleMovement(deltaTime);
+            Move(deltaTime);
             AlignWithCamera(deltaTime);
         }
 
@@ -71,7 +67,6 @@ public class PlayerController : IUpdatable
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            Debug.Log("Saliendo del juego...");
             Application.Quit();
         }
     }
@@ -79,7 +74,6 @@ public class PlayerController : IUpdatable
     private void ReadInput()
     {
         inputVector.Set(Input.GetAxisRaw("Horizontal"), 0f, Input.GetAxisRaw("Vertical"));
-
         if (inputVector.sqrMagnitude > 1f)
             inputVector.Normalize();
 
@@ -87,14 +81,10 @@ public class PlayerController : IUpdatable
             jumpBufferCounter = jumpBufferTime;
     }
 
-    private void HandleMovement(float deltaTime)
+    private void Move(float deltaTime)
     {
-        moveDirection = playerTransform.right * inputVector.x + playerTransform.forward * inputVector.z;
-
-        if (moveDirection.sqrMagnitude > 0.01f)
-        {
-            playerTransform.position += moveDirection * moveSpeed * deltaTime;
-        }
+        Vector3 moveDirection = playerTransform.right * inputVector.x + playerTransform.forward * inputVector.z;
+        playerTransform.position += moveDirection * moveSpeed * deltaTime;
     }
 
     private void HandleGravity(float deltaTime)
@@ -131,12 +121,6 @@ public class PlayerController : IUpdatable
         Vector3 origin = playerTransform.position + UpOffset;
         return Physics.SphereCastNonAlloc(origin, characterRadius, Vector3.down, hitResults, groundCheckDistance, groundMask) > 0;
     }
-
-    //private bool CheckWall(Vector3 direction)
-    //{
-    //    Vector3 origin = playerTransform.position + UpOffset;
-    //    return Physics.SphereCastNonAlloc(origin, characterRadius, direction.normalized, hitResults, wallCheckDistance, wallMask) > 0;
-    //}
 
     private void AlignWithCamera(float deltaTime)
     {
