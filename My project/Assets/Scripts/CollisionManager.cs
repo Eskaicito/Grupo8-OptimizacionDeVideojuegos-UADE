@@ -43,7 +43,7 @@ public class CollisionManager : IUpdatable
         return Physics.SphereCastNonAlloc(origin, 0.3f, Vector3.down, hitResults, 0.3f, groundMask) > 0;
     }
 
-    private bool CheckWall(Vector3 direction)
+    public bool CheckWall(Vector3 direction)
     {
         Vector3 origin = playerTransform.position + UpOffset;
         return Physics.SphereCastNonAlloc(origin, 0.3f, direction.normalized, hitResults, 0.2f, wallMask) > 0;

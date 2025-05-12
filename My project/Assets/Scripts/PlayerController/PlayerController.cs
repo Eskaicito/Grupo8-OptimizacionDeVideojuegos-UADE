@@ -9,7 +9,9 @@ public class PlayerController : IUpdatable
 
     private Vector3 velocity;
     private Vector3 cachedMove = new Vector3();
-    private  Vector3 cachedVerticalMove = new Vector3();
+    private Vector3 cachedVerticalMove = new Vector3();
+    private Vector3 cachedForward = new Vector3();
+    private Vector3 cachedRight = new Vector3();
 
     private readonly float moveSpeed;
     private readonly float jumpForce;
@@ -24,7 +26,7 @@ public class PlayerController : IUpdatable
         this.collisionHandler = collisionHandler;
         this.moveSpeed = moveSpeed;
         this.jumpForce = jumpForce;
-        this.RespawnPosition = Respawn; 
+        this.RespawnPosition = Respawn;
     }
 
     public void SetCameraTransform(Transform camTransform)
@@ -34,6 +36,9 @@ public class PlayerController : IUpdatable
 
     public void Tick(float deltaTime)
     {
+        cachedForward = playerTransform.forward;
+        cachedRight = playerTransform.right;
+
         HandleGravity(deltaTime);
         ApplyVerticalMovement(deltaTime);
 
@@ -49,7 +54,6 @@ public class PlayerController : IUpdatable
             velocity.y = jumpForce;
         }
 
-        // Si tocamos obstáculo o bala, aplicar empuje
         if (collisionHandler.IsTouchingObstacle)
         {
             ApplyExternalPush(collisionHandler.LastObstacleDirection, 300f, deltaTime);
@@ -60,32 +64,40 @@ public class PlayerController : IUpdatable
             ApplyExternalPush(collisionHandler.LastBulletDirection, 400f, deltaTime);
         }
     }
+
     private void ApplyExternalPush(Vector3 direction, float force, float deltaTime)
     {
-        playerTransform.position += direction.normalized * force * deltaTime;
+        NormalizeSafe(ref direction);
+        playerTransform.position += direction * force * deltaTime;
     }
+
     private void Move(float deltaTime, Vector3 inputVector)
     {
         cachedMove.Set(
-            playerTransform.right.x * inputVector.x + playerTransform.forward.x * inputVector.z,
+            cachedRight.x * inputVector.x + cachedForward.x * inputVector.z,
             0f,
-            playerTransform.right.z * inputVector.x + playerTransform.forward.z * inputVector.z
+            cachedRight.z * inputVector.x + cachedForward.z * inputVector.z
         );
 
-        cachedMove *= moveSpeed * deltaTime;
-        playerTransform.position += cachedMove;
+        if (cachedMove.sqrMagnitude > 0.01f)
+        {
+            if (!collisionHandler.CheckWall(cachedMove))
+            {
+                cachedMove *= moveSpeed * deltaTime;
+                playerTransform.position += cachedMove;
+            }
+        }
     }
 
     private void HandleGravity(float deltaTime)
     {
-        if (collisionHandler.IsGrounded && velocity.y <= 0f)
+        if (collisionHandler.IsGrounded)
         {
-            // Si estamos tocando el suelo y cayendo, anclamos Y en 0
-            velocity.y = 0f;
+            if (velocity.y < 0f)
+                velocity.y = 0f;
         }
         else
         {
-            // Acumular gravedad
             velocity.y += gravity * deltaTime;
         }
     }
@@ -113,6 +125,17 @@ public class PlayerController : IUpdatable
         {
             Quaternion targetRotation = Quaternion.LookRotation(cameraForward);
             playerTransform.rotation = Quaternion.Lerp(playerTransform.rotation, targetRotation, deltaTime * 10f);
+        }
+    }
+    private static void NormalizeSafe(ref Vector3 vector)
+    {
+        float mag = vector.magnitude;
+        if (mag > 0.0001f)
+        {
+            float invMag = 1f / mag;
+            vector.x *= invMag;
+            vector.y *= invMag;
+            vector.z *= invMag;
         }
     }
 }
