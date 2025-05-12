@@ -13,6 +13,8 @@ public class PlayerController : IUpdatable
     private Vector3 cachedForward = new Vector3();
     private Vector3 cachedRight = new Vector3();
 
+
+
     private readonly float moveSpeed;
     private readonly float jumpForce;
     private const float gravity = -20f;
