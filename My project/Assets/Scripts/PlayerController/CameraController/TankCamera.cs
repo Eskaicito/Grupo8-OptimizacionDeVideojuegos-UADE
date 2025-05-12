@@ -12,7 +12,7 @@ public class TankCamera : IUpdatable
     private float lastYaw = float.MinValue;
     private Vector3 forward = Vector3.forward;
 
-    private const float rotationSpeed = 90f; // grados por segundo
+    private const float rotationSpeed = 90f; 
     private const float distance = 9f;
     private const float height = 2f;
     private const float smoothSpeed = 10f;
@@ -22,7 +22,7 @@ public class TankCamera : IUpdatable
 
     private static readonly Vector3 LookAtOffset = new Vector3(0f, 1.5f, 0f);
 
-    private readonly LayerMask wallMask;
+    private readonly LayerMask groundMask;
     private readonly RaycastHit[] _cameraHits = new RaycastHit[1];
 
     public TankCamera(Transform cameraTransform, Transform target)
@@ -30,7 +30,7 @@ public class TankCamera : IUpdatable
         this.cameraTransform = cameraTransform;
         this.targetTransform = target;
 
-        wallMask = LayerMask.GetMask("Wall");
+        groundMask = LayerMask.GetMask("Ground");
     }
 
     public void Tick(float deltaTime)
@@ -63,7 +63,7 @@ public class TankCamera : IUpdatable
             desiredDirection,
             _cameraHits,
             desiredDistance,
-            wallMask
+            groundMask
         );
 
         if (hitCount > 0)
