@@ -7,7 +7,7 @@ public class PlayerSetup : MonoBehaviour
     [SerializeField] private LayerMask wallMask;
     [SerializeField] private LayerMask obstacleMask;
     [SerializeField] private LayerMask bulletMask;
-    [SerializeField] private LayerMask winZoneMask; // ?? NUEVO
+    [SerializeField] private LayerMask winZoneMask; 
 
     [SerializeField] private float moveSpeed;
     [SerializeField] private float jumpForce;
