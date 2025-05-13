@@ -1,5 +1,7 @@
 using UnityEngine;
 
+
+
 public class PlayerController : IUpdatable
 {
     private readonly Transform playerTransform;
@@ -12,8 +14,6 @@ public class PlayerController : IUpdatable
     private Vector3 cachedVerticalMove = new Vector3();
     private Vector3 cachedForward = new Vector3();
     private Vector3 cachedRight = new Vector3();
-
-
 
     private readonly float moveSpeed;
     private readonly float jumpForce;
@@ -64,6 +64,13 @@ public class PlayerController : IUpdatable
         if (collisionHandler.IsTouchingBullet)
         {
             ApplyExternalPush(collisionHandler.LastBulletDirection, 400f, deltaTime);
+        }
+
+       
+        if (collisionHandler.IsInWinZone)
+        {
+            
+            Application.Quit();
         }
     }
 
@@ -129,6 +136,7 @@ public class PlayerController : IUpdatable
             playerTransform.rotation = Quaternion.Lerp(playerTransform.rotation, targetRotation, deltaTime * 10f);
         }
     }
+
     private static void NormalizeSafe(ref Vector3 vector)
     {
         float mag = vector.magnitude;
