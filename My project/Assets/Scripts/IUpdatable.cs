@@ -1,5 +1,5 @@
-// Interfaz que define un contrato: cualquier clase que la implemente debe tener un método Tick().
-// Esto reemplaza al Update de Unity, dándote control total sobre qué se actualiza y cuándo.
+// Interfaz que define un contrato: cualquier clase que la implemente debe tener un mï¿½todo Tick().
+// Esto reemplaza al Update de Unity, dï¿½ndote control total sobre quï¿½ se actualiza y cuï¿½ndo.
 
 public interface IUpdatable
 {
