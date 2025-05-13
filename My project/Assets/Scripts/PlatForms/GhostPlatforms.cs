@@ -2,11 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GhostPlatforms : MonoBehaviour, IUpdatable
+public class GhostPlatforms : IUpdatable
 {
     private readonly Renderer _renderer;
     private readonly Collider _collider;
-    private readonly MaterialPropertyBlock block;
+    private static readonly MaterialPropertyBlock block = new MaterialPropertyBlock();
+
     private readonly Color normalColor;
     private readonly Color warningColor;
 
@@ -31,9 +32,7 @@ public class GhostPlatforms : MonoBehaviour, IUpdatable
         normalColor = normal;
         warningColor = warningCol;
 
-        block = new MaterialPropertyBlock();
-        actualInterval = Random.Range(intervalMin, intervalMax);
-        timer = 0f;
+        InitializeInterval();
         SetColor(normalColor);
     }
 
@@ -53,8 +52,7 @@ public class GhostPlatforms : MonoBehaviour, IUpdatable
             _renderer.enabled = isActive;
             _collider.enabled = isActive;
 
-            timer = 0f;
-            actualInterval = Random.Range(intervalMin, intervalMax);
+            InitializeInterval();
             hasWarned = false;
 
             if (isActive)
@@ -66,6 +64,12 @@ public class GhostPlatforms : MonoBehaviour, IUpdatable
     {
         block.SetColor(ColorID, color);
         _renderer.SetPropertyBlock(block);
+    }
+
+    private void InitializeInterval()
+    {
+        timer = 0f;
+        actualInterval = Random.Range(intervalMin, intervalMax);
     }
 }
 

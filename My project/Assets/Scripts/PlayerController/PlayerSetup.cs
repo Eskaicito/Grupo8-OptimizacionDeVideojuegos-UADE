@@ -2,17 +2,19 @@ using UnityEngine;
 
 public class PlayerSetup : MonoBehaviour
 {
-    private PlayerController playerLogic;
     [SerializeField] private LayerMask groundMask;
     [SerializeField] private LayerMask wallMask;
+    [SerializeField] private LayerMask obstacleMask;
+    [SerializeField] private LayerMask bulletMask;
     [SerializeField] private float moveSpeed;
     [SerializeField] private float jumpForce;
+    [SerializeField] private Transform respawn;  
 
-    
-    void Awake()
+    private void Awake()
     {
-        
-        playerLogic = new PlayerController(transform, groundMask, wallMask, moveSpeed, jumpForce);
+        var inputHandler = new InputManager();
+        var collisionHandler = new CollisionManager(transform, groundMask, wallMask, obstacleMask, bulletMask);
+        var playerLogic = new PlayerController(transform, inputHandler, collisionHandler, moveSpeed, jumpForce, respawn);
 
         var cam = Camera.main;
         if (cam != null)
@@ -21,7 +23,8 @@ public class PlayerSetup : MonoBehaviour
         }
 
         var updateManager = FindFirstObjectByType<CustomUpdateManager>();
+        updateManager.Register(inputHandler);
+        updateManager.Register(collisionHandler);
         updateManager.Register(playerLogic);
     }
-
 }
