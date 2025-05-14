@@ -1,4 +1,6 @@
+using UnityEditor;
 using UnityEngine;
+
 
 
 
@@ -66,11 +68,25 @@ public class PlayerController : IUpdatable
             ApplyExternalPush(collisionHandler.LastBulletDirection, 400f, deltaTime);
         }
 
-       
         if (collisionHandler.IsInWinZone)
         {
-            
-            Application.Quit();
+            Debug.Log("¡Victoria! Cerrando el juego...");
+#if UNITY_EDITOR
+            EditorApplication.isPlaying = false;
+#else
+    Application.Quit();
+#endif
+        }
+
+        
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Debug.Log("Escape presionado. Saliendo del juego...");
+#if UNITY_EDITOR
+            EditorApplication.isPlaying = false;
+#else
+    Application.Quit();
+#endif
         }
     }
 
