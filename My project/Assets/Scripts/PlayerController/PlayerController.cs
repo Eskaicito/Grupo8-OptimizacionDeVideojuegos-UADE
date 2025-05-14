@@ -67,9 +67,9 @@ public class PlayerController : IUpdatable
         }
 
        
-        if (collisionHandler.IsInWinZone)
+        if (collisionHandler.IsInWinZone || inputHandler.ExitPressed)
         {
-            
+           
             Application.Quit();
         }
     }

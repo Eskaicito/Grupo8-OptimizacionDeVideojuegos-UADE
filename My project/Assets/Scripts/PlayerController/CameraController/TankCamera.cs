@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class TankCamera : IUpdatable
 {
@@ -25,12 +25,11 @@ public class TankCamera : IUpdatable
    
     private static readonly Quaternion PitchRotation = Quaternion.Euler(25f, 0f, 0f);
 
-    public TankCamera(Transform cameraTransform, Transform target)
+    public TankCamera(Transform cameraTransform, Transform target, LayerMask groundMask)
     {
         this.cameraTransform = cameraTransform;
         this.targetTransform = target;
-
-        groundMask = LayerMask.GetMask("Ground");
+        this.groundMask = groundMask;
     }
 
     public void Tick(float deltaTime)
