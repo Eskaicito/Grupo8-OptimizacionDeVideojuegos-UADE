@@ -2,6 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// Clase SetUp de las plataformas fantasma.
+// Esta clase se encarga de inicializar las plataformas fantasma y registrarlas en el CustomUpdateManager.
+// Se le asigna un intervalo de tiempo aleatorio para que aparezcan y desaparezcan.
+
+
 public class PlatformSetUp : MonoBehaviour
 {
     [SerializeField] private CustomUpdateManager updateManager;
@@ -16,6 +21,10 @@ public class PlatformSetUp : MonoBehaviour
     [SerializeField] private Color normalColor = Color.white;
     [SerializeField] private Color warningColor = Color.red;
 
+
+    // Este método se llama al iniciar el juego.
+    // Se encarga de registrar las plataformas fantasma en el CustomUpdateManager.
+    // Se inicializan los intervalos de tiempo y se asignan los colores correspondientes.
     void Awake()
     {
         for (int i = 0; i < ghostRenderers.Count; i++)

@@ -39,7 +39,7 @@ public class PlayerController : IUpdatable
         this.RespawnPosition = Respawn;
     }
     /// <summary>
-    /// Esto para alinear l c[amara con la rotaci[on del jugador
+    /// Esto para alinear l camara con la rotaci[on del jugador
     /// </summary>
     public void SetCameraTransform(Transform camTransform)
     {

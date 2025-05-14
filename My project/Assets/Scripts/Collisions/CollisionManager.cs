@@ -1,7 +1,8 @@
 using UnityEngine;
 
 
-
+//<sumary>
+// Esta clase se encarga de detectar colisiones entre el jugador y varios objetos en el juego.
 
 public class CollisionManager : IUpdatable
 {
@@ -12,6 +13,7 @@ public class CollisionManager : IUpdatable
     private readonly LayerMask bulletMask;
     private readonly LayerMask winZoneMask;
 
+    // Se utiliza un array de RaycastHit para almacenar los resultados de las colisiones.
     private readonly RaycastHit[] hitResults = new RaycastHit[1];
 
     public bool IsGrounded { get; private set; }
@@ -25,6 +27,7 @@ public class CollisionManager : IUpdatable
 
     private static readonly Vector3 UpOffset = new Vector3(0f, 0.05f, 0f);
 
+    // Constructor que inicializa las propiedades necesarias para la detección de colisiones.
     public CollisionManager(Transform playerTransform, LayerMask groundMask, LayerMask wallMask, LayerMask obstacleMask, LayerMask bulletMask, LayerMask winZoneMask)
     {
         this.playerTransform = playerTransform;
@@ -35,6 +38,9 @@ public class CollisionManager : IUpdatable
         this.winZoneMask = winZoneMask;
     }
 
+    // Este metodo se llama manualmente desde el IUpdatable
+    // Método que se llama cada frame para actualizar el estado de las colisiones.
+    // Este método verifica si el jugador está en el suelo, tocando una pared, un obstáculo, una bala o en la zona de victoria.
     public void Tick(float deltaTime)
     {
         IsGrounded = CheckGrounded();
@@ -46,18 +52,21 @@ public class CollisionManager : IUpdatable
         IsInWinZone = CheckWinZone(); 
     }
 
+    // Comprobar si el jugador está en el suelo (groundMask).
     private bool CheckGrounded()
     {
         Vector3 origin = playerTransform.position + UpOffset;
         return Physics.SphereCastNonAlloc(origin, 0.3f, Vector3.down, hitResults, 0.3f, groundMask) > 0;
     }
 
+    // Comprobar si el jugador está tocando una pared (wallMask).
     public bool CheckWall(Vector3 direction)
     {
         Vector3 origin = playerTransform.position + UpOffset;
         return Physics.SphereCastNonAlloc(origin, 0.3f, direction.normalized, hitResults, 0.2f, wallMask) > 0;
     }
 
+    // Comprobar si el jugador está tocando un obstáculo (obstacleMask).
     private bool CheckObstacle(out Vector3 direction)
     {
         Vector3 origin = playerTransform.position + UpOffset;
@@ -71,6 +80,8 @@ public class CollisionManager : IUpdatable
         return false;
     }
 
+    // Comprobar si el jugador está tocando una bala (bulletMask).
+    // Si hay, devuelve la dirección opuesta.
     private bool CheckBullet(out Vector3 direction)
     {
         Vector3 origin = playerTransform.position + UpOffset;
@@ -84,6 +95,8 @@ public class CollisionManager : IUpdatable
         return false;
     }
 
+    // Comprobar si el jugador está en la zona de victoria (winZoneMask).
+    // Si lo esta, TRUE y gana el juego
     private bool CheckWinZone()
     {
         Vector3 origin = playerTransform.position + UpOffset;
