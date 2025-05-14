@@ -1,9 +1,14 @@
 using UnityEngine;
 
+/// <summary>
+/// Gestor de entrada personalizado. Captura el input de movimiento, salto y salida del juego.
+/// Se ejecuta mediante IUpdatable.
+/// </summary>
 public class InputManager : IUpdatable
 {
     public Vector3 MoveInput { get; private set; }
     public bool JumpPressed { get; private set; }
+    public bool ExitPressed { get; private set; }
 
     public void Tick(float deltaTime)
     {
@@ -15,5 +20,6 @@ public class InputManager : IUpdatable
             MoveInput.Normalize();
 
         JumpPressed = Input.GetKeyDown(KeyCode.Space);
+        ExitPressed = Input.GetKeyDown(KeyCode.Escape);
     }
 }

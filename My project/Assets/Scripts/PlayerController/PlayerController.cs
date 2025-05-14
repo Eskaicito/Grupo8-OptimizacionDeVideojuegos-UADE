@@ -1,5 +1,11 @@
 using UnityEngine;
 
+/// <summary>
+/// Controlador principal del jugador. Gestiona el movimiento, salto, gravedad, empujes externos, 
+/// interacción con obstáculos y salida del juego.
+/// Se ejecuta mediante un sistema de actualización manual a través de IUpdatable
+/// </summary>
+
 public class PlayerController : IUpdatable
 {
     private readonly Transform playerTransform;
@@ -7,13 +13,12 @@ public class PlayerController : IUpdatable
     private readonly CollisionManager collisionHandler;
     private Transform cameraTransform;
 
+    // Caché de movimientos para minimizar asignaciones de memoria
     private Vector3 velocity;
     private Vector3 cachedMove = new Vector3();
     private Vector3 cachedVerticalMove = new Vector3();
     private Vector3 cachedForward = new Vector3();
     private Vector3 cachedRight = new Vector3();
-
-
 
     private readonly float moveSpeed;
     private readonly float jumpForce;
@@ -21,6 +26,9 @@ public class PlayerController : IUpdatable
 
     private readonly Transform RespawnPosition;
 
+    /// <summary>
+    /// El Constructor que recibe todas las dependencias necesarias desde el exterior.
+    /// </summary>
     public PlayerController(Transform playerTransform, InputManager inputHandler, CollisionManager collisionHandler, float moveSpeed, float jumpForce, Transform Respawn)
     {
         this.playerTransform = playerTransform;
@@ -30,7 +38,9 @@ public class PlayerController : IUpdatable
         this.jumpForce = jumpForce;
         this.RespawnPosition = Respawn;
     }
-
+    /// <summary>
+    /// Esto para alinear l camara con la rotaci[on del jugador
+    /// </summary>
     public void SetCameraTransform(Transform camTransform)
     {
         cameraTransform = camTransform;
@@ -65,14 +75,26 @@ public class PlayerController : IUpdatable
         {
             ApplyExternalPush(collisionHandler.LastBulletDirection, 400f, deltaTime);
         }
-    }
 
+       
+        if (collisionHandler.IsInWinZone || inputHandler.ExitPressed)
+        {
+           
+            Application.Quit();
+        }
+    }
+    /// <summary>
+    /// Aplica una fuerza de empuje al jugador en la dirección indicada. Es para cuando algo lo golpee
+    /// </summary>
     private void ApplyExternalPush(Vector3 direction, float force, float deltaTime)
     {
         NormalizeSafe(ref direction);
         playerTransform.position += direction * force * deltaTime;
     }
 
+    /// <summary>
+    /// Calcula y aplica el movimiento horizontal del jugador en base al input. Tambien para el choque de paredes
+    /// </summary>
     private void Move(float deltaTime, Vector3 inputVector)
     {
         cachedMove.Set(
@@ -91,6 +113,9 @@ public class PlayerController : IUpdatable
         }
     }
 
+    /// <summary>
+    /// Calcular la gravedad del jugador. Si toca el suelo, es 0.
+    /// </summary>
     private void HandleGravity(float deltaTime)
     {
         if (collisionHandler.IsGrounded)
@@ -103,7 +128,9 @@ public class PlayerController : IUpdatable
             velocity.y += gravity * deltaTime;
         }
     }
-
+    /// <summary>
+    /// Aplica el movimiento vertical acumulado. También resetea la posición si el jugador cae fuera del nivel.
+    /// </summary>
     private void ApplyVerticalMovement(float deltaTime)
     {
         cachedVerticalMove.Set(0f, velocity.y * deltaTime, 0f);
@@ -116,6 +143,9 @@ public class PlayerController : IUpdatable
         }
     }
 
+    /// <summary>
+    /// Ajusta la rotación del jugador para que siempre mire hacia la dirección de la cámara.
+    /// </summary>
     private void AlignWithCamera(float deltaTime)
     {
         if (cameraTransform == null) return;
@@ -129,6 +159,9 @@ public class PlayerController : IUpdatable
             playerTransform.rotation = Quaternion.Lerp(playerTransform.rotation, targetRotation, deltaTime * 10f);
         }
     }
+    /// <summary>
+    /// Para normalizar vectores
+    /// </summary>
     private static void NormalizeSafe(ref Vector3 vector)
     {
         float mag = vector.magnitude;
