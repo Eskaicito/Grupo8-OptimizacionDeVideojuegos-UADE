@@ -1,5 +1,9 @@
 using UnityEngine;
 
+/// <summary>
+/// Gestor de entrada personalizado. Captura el input de movimiento, salto y salida del juego.
+/// Se ejecuta mediante IUpdatable.
+/// </summary>
 public class InputManager : IUpdatable
 {
     public Vector3 MoveInput { get; private set; }
