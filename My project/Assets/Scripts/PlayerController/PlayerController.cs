@@ -71,23 +71,15 @@ public class PlayerController : IUpdatable
         if (collisionHandler.IsInWinZone)
         {
             Debug.Log("¡Victoria! Cerrando el juego...");
-#if UNITY_EDITOR
+            #if UNITY_EDITOR
             EditorApplication.isPlaying = false;
-#else
-    Application.Quit();
-#endif
+            #else
+            Application.Quit();
+            #endif
         }
 
         
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            Debug.Log("Escape presionado. Saliendo del juego...");
-#if UNITY_EDITOR
-            EditorApplication.isPlaying = false;
-#else
-    Application.Quit();
-#endif
-        }
+     
     }
 
     private void ApplyExternalPush(Vector3 direction, float force, float deltaTime)

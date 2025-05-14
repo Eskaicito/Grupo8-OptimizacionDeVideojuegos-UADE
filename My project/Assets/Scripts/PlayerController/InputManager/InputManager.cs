@@ -1,3 +1,4 @@
+using UnityEditor;
 using UnityEngine;
 
 public class InputManager : IUpdatable
@@ -15,5 +16,16 @@ public class InputManager : IUpdatable
             MoveInput.Normalize();
 
         JumpPressed = Input.GetKeyDown(KeyCode.Space);
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Debug.Log("Escape presionado. Saliendo del juego...");
+            #if UNITY_EDITOR
+            EditorApplication.isPlaying = false;
+            #else
+            Application.Quit();
+            #endif
+        }
+
     }
 }
