@@ -23,8 +23,9 @@ public static class PhysicsHelper
     public static Vector3 CalculateImpulsePush(Vector3 direction, float force, Vector3 currentMomentum)
     {
         MathHelper.NormalizeSafe(ref direction);
-
         float alignment = Vector3.Dot(currentMomentum, direction);
+
+       
         if (alignment > 0.5f)
         {
             force *= 0.5f;

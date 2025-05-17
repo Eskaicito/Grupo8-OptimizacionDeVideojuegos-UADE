@@ -10,8 +10,6 @@ public class CollisionManager : IUpdatable
     private readonly LayerMask winZoneMask;
 
     private static readonly RaycastHit[] hitResults = new RaycastHit[1];
-
-
     private static readonly Vector3 UpOffset = new Vector3(0f, 0.1f, 0f);
 
     public bool IsGrounded { get; private set; }
@@ -22,6 +20,7 @@ public class CollisionManager : IUpdatable
 
     public Vector3 LastObstacleDirection { get; private set; }
     public Vector3 LastBulletDirection { get; private set; }
+    public Vector3 GroundNormal { get; private set; } = Vector3.up;
 
     public CollisionManager(
         Transform trackedTransform,
@@ -44,21 +43,16 @@ public class CollisionManager : IUpdatable
         Vector3 origin = trackedTransform.position + UpOffset;
         Vector3 forward = trackedTransform.forward;
 
-   
-        IsGrounded = SphereCast(origin, Vector3.down, 0.3f, 0.5f, groundMask);
-        Debug.DrawRay(origin, Vector3.down * 0.5f, IsGrounded ? Color.green : Color.red);
+        IsGrounded = SphereCastWithNormal(origin, Vector3.down, 0.3f, 0.5f, groundMask, out Vector3 normal);
+        GroundNormal = normal;
 
-       
         IsTouchingWall = SphereCast(origin, forward.normalized, 0.3f, 0.2f, wallMask);
-
-      
         IsTouchingObstacle = SphereCast(origin, forward, 0.3f, 0.5f, obstacleMask, out Vector3 obstacleDir);
         LastObstacleDirection = obstacleDir;
 
         IsTouchingBullet = SphereCast(origin, forward, 0.3f, 0.5f, bulletMask, out Vector3 bulletDir);
         LastBulletDirection = bulletDir;
 
-    
         IsInWinZone = SphereCast(origin, Vector3.forward, 0.3f, 0.5f, winZoneMask);
     }
 
@@ -88,6 +82,7 @@ public class CollisionManager : IUpdatable
         }
         return desiredDistance;
     }
+
     private static bool SphereCast(Vector3 origin, Vector3 direction, float radius, float distance, LayerMask layerMask)
     {
         return Physics.SphereCastNonAlloc(origin, radius, direction, hitResults, distance, layerMask) > 0;
@@ -98,5 +93,16 @@ public class CollisionManager : IUpdatable
         bool hit = Physics.SphereCastNonAlloc(origin, radius, direction, hitResults, distance, layerMask) > 0;
         impactDirection = hit ? -direction : Vector3.zero;
         return hit;
+    }
+
+    private static bool SphereCastWithNormal(Vector3 origin, Vector3 direction, float radius, float distance, LayerMask mask, out Vector3 normal)
+    {
+        if (Physics.SphereCastNonAlloc(origin, radius, direction, hitResults, distance, mask) > 0)
+        {
+            normal = hitResults[0].normal;
+            return true;
+        }
+        normal = Vector3.up;
+        return false;
     }
 }

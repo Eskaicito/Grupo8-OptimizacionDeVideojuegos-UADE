@@ -88,13 +88,25 @@ public class PlayerController : IUpdatable
         Vector3 moveInput = inputHandler.MoveInput;
         bool hasInput = moveInput.sqrMagnitude > 0.01f;
 
+        float groundSlope = Vector3.Angle(Vector3.up, collisionHandler.GroundNormal);
+
+        if (groundSlope > 35f)
+        {
+            Vector3 slideDir = Vector3.ProjectOnPlane(Vector3.down, collisionHandler.GroundNormal).normalized;
+            playerTransform.position += slideDir * 4f * deltaTime;
+            return;
+        }
+
+        float slopeFactor = Mathf.Cos(groundSlope * Mathf.Deg2Rad);
+        float effectiveSpeed = moveSpeed * slopeFactor;
+
         if (hasInput)
         {
             Vector3 desiredDirection = cameraRight * moveInput.x + cameraForwardXZ * moveInput.z;
             MathHelper.NormalizeSafe(ref desiredDirection);
 
             momentum = Vector3.Slerp(momentum, desiredDirection, turnSpeed * deltaTime);
-            currentSpeed = Mathf.MoveTowards(currentSpeed, moveSpeed, acceleration * deltaTime);
+            currentSpeed = Mathf.MoveTowards(currentSpeed, effectiveSpeed, acceleration * deltaTime);
 
             Quaternion targetRotation = Quaternion.LookRotation(momentum);
             playerTransform.rotation = Quaternion.Lerp(playerTransform.rotation, targetRotation, turnSpeed * deltaTime);
