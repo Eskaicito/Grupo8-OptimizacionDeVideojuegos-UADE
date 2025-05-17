@@ -19,7 +19,21 @@ public class PlayerController : IUpdatable
     private Vector3 momentum;
     private float currentSpeed = 0f;
 
-    public PlayerController(Transform playerTransform, InputManager inputHandler, CollisionManager collisionHandler, Transform respawnPosition, float moveSpeed, float jumpForce, float gravity, float acceleration, float deceleration, float turnSpeed, Transform cameraTransform)
+    private Vector3 externalPushVelocity = Vector3.zero;
+    private const float externalPushDamping = 5f;
+
+    public PlayerController(
+        Transform playerTransform,
+        InputManager inputHandler,
+        CollisionManager collisionHandler,
+        Transform respawnPosition,
+        float moveSpeed,
+        float jumpForce,
+        float gravity,
+        float acceleration,
+        float deceleration,
+        float turnSpeed,
+        Transform cameraTransform)
     {
         this.playerTransform = playerTransform;
         this.inputHandler = inputHandler;
@@ -36,6 +50,16 @@ public class PlayerController : IUpdatable
 
     public void Tick(float deltaTime)
     {
+        HandleGravity(deltaTime);
+        HandleMovement(deltaTime);
+        HandleExternalPush(deltaTime);
+        HandleJump();
+        HandleImpacts(deltaTime);
+        HandleGameState();
+    }
+
+    private void HandleGravity(float deltaTime)
+    {
         velocity.y = PhysicsHelper.ApplyGravity(velocity.y, gravity, deltaTime, collisionHandler.IsGrounded);
         playerTransform.position = PhysicsHelper.ApplyVerticalMovement(playerTransform.position, velocity.y, deltaTime);
 
@@ -44,20 +68,23 @@ public class PlayerController : IUpdatable
             playerTransform.position = respawnPosition.position;
             velocity.y = 0f;
         }
+    }
 
+    private void HandleMovement(float deltaTime)
+    {
         Vector3 cameraForwardXZ = cameraTransform.forward;
         cameraForwardXZ.y = 0f;
-        MathHelper.NormalizeSafe(ref cameraForwardXZ); // ✅ Usamos MathHelper
+        MathHelper.NormalizeSafe(ref cameraForwardXZ);
 
-        Vector3 cameraRight = MathHelper.RightFromForward(cameraForwardXZ); // ✅ También formalizado
+        Vector3 cameraRight = MathHelper.RightFromForward(cameraForwardXZ);
 
         Vector3 moveInput = inputHandler.MoveInput;
         bool hasInput = moveInput.sqrMagnitude > 0.01f;
 
         if (hasInput)
         {
-            Vector3 desiredDirection = (cameraRight * moveInput.x + cameraForwardXZ * moveInput.z);
-            MathHelper.NormalizeSafe(ref desiredDirection); // ✅ Normalizamos correctamente
+            Vector3 desiredDirection = cameraRight * moveInput.x + cameraForwardXZ * moveInput.z;
+            MathHelper.NormalizeSafe(ref desiredDirection);
 
             momentum = Vector3.Slerp(momentum, desiredDirection, turnSpeed * deltaTime);
             currentSpeed = Mathf.MoveTowards(currentSpeed, moveSpeed, acceleration * deltaTime);
@@ -74,22 +101,40 @@ public class PlayerController : IUpdatable
         {
             playerTransform.position += momentum * currentSpeed * deltaTime;
         }
+    }
 
+    private void HandleExternalPush(float deltaTime)
+    {
+        if (externalPushVelocity.sqrMagnitude > 0.001f)
+        {
+            playerTransform.position += externalPushVelocity * deltaTime;
+            externalPushVelocity = Vector3.Lerp(externalPushVelocity, Vector3.zero, externalPushDamping * deltaTime);
+        }
+    }
+
+    private void HandleJump()
+    {
         if (inputHandler.JumpPressed && collisionHandler.IsGrounded)
         {
             velocity.y = jumpForce;
         }
+    }
 
+    private void HandleImpacts(float deltaTime)
+    {
         if (collisionHandler.IsTouchingObstacle)
         {
-            playerTransform.position = PhysicsHelper.ApplyForce(playerTransform.position, collisionHandler.LastObstacleDirection, 300f, deltaTime);
+            externalPushVelocity = PhysicsHelper.CalculateExternalPush(externalPushVelocity, collisionHandler.LastObstacleDirection, 5f);
         }
 
         if (collisionHandler.IsTouchingBullet)
         {
-            playerTransform.position = PhysicsHelper.ApplyForce(playerTransform.position, collisionHandler.LastBulletDirection, 400f, deltaTime);
+            externalPushVelocity = PhysicsHelper.CalculateExternalPush(externalPushVelocity, collisionHandler.LastBulletDirection, 5f);
         }
+    }
 
+    private void HandleGameState()
+    {
         if (collisionHandler.IsInWinZone || inputHandler.ExitPressed)
         {
             Application.Quit();
