@@ -1,20 +1,16 @@
 using UnityEngine;
 
-
-//<sumary>
-// Esta clase se encarga de detectar colisiones entre el jugador y varios objetos en el juego.
-
 public class CollisionManager : IUpdatable
 {
-    private readonly Transform playerTransform;
+    private readonly Transform trackedTransform;
     private readonly LayerMask groundMask;
     private readonly LayerMask wallMask;
     private readonly LayerMask obstacleMask;
     private readonly LayerMask bulletMask;
     private readonly LayerMask winZoneMask;
 
-    // Se utiliza un array de RaycastHit para almacenar los resultados de las colisiones.
-    private readonly RaycastHit[] hitResults = new RaycastHit[1];
+    private static readonly RaycastHit[] hitResults = new RaycastHit[1];
+    private static readonly Vector3 UpOffset = new Vector3(0f, 0.05f, 0f);
 
     public bool IsGrounded { get; private set; }
     public bool IsTouchingWall { get; private set; }
@@ -25,12 +21,9 @@ public class CollisionManager : IUpdatable
     public Vector3 LastObstacleDirection { get; private set; }
     public Vector3 LastBulletDirection { get; private set; }
 
-    private static readonly Vector3 UpOffset = new Vector3(0f, 0.05f, 0f);
-
-    // Constructor que inicializa las propiedades necesarias para la detección de colisiones.
-    public CollisionManager(Transform playerTransform, LayerMask groundMask, LayerMask wallMask, LayerMask obstacleMask, LayerMask bulletMask, LayerMask winZoneMask)
+    public CollisionManager(Transform trackedTransform, LayerMask groundMask, LayerMask wallMask, LayerMask obstacleMask, LayerMask bulletMask, LayerMask winZoneMask)
     {
-        this.playerTransform = playerTransform;
+        this.trackedTransform = trackedTransform;
         this.groundMask = groundMask;
         this.wallMask = wallMask;
         this.obstacleMask = obstacleMask;
@@ -38,68 +31,49 @@ public class CollisionManager : IUpdatable
         this.winZoneMask = winZoneMask;
     }
 
-    // Este metodo se llama manualmente desde el IUpdatable
-    // Método que se llama cada frame para actualizar el estado de las colisiones.
-    // Este método verifica si el jugador está en el suelo, tocando una pared, un obstáculo, una bala o en la zona de victoria.
     public void Tick(float deltaTime)
     {
-        IsGrounded = CheckGrounded();
-        IsTouchingWall = CheckWall(playerTransform.forward);
-        IsTouchingObstacle = CheckObstacle(out Vector3 obstacleDir);
+        Vector3 position = trackedTransform.position + UpOffset;
+        Vector3 forward = trackedTransform.forward;
+
+        IsGrounded = SphereCast(position, Vector3.down, 0.3f, 0.3f, groundMask);
+        IsTouchingWall = SphereCast(position, forward.normalized, 0.3f, 0.2f, wallMask);
+
+        IsTouchingObstacle = SphereCast(position, forward, 0.3f, 0.5f, obstacleMask, out Vector3 obstacleDir);
         LastObstacleDirection = obstacleDir;
-        IsTouchingBullet = CheckBullet(out Vector3 bulletDir);
+
+        IsTouchingBullet = SphereCast(position, forward, 0.3f, 0.5f, bulletMask, out Vector3 bulletDir);
         LastBulletDirection = bulletDir;
-        IsInWinZone = CheckWinZone(); 
+
+        IsInWinZone = SphereCast(position, Vector3.forward, 0.3f, 0.5f, winZoneMask);
     }
 
-    // Comprobar si el jugador está en el suelo (groundMask).
-    private bool CheckGrounded()
-    {
-        Vector3 origin = playerTransform.position + UpOffset;
-        return Physics.SphereCastNonAlloc(origin, 0.3f, Vector3.down, hitResults, 0.3f, groundMask) > 0;
-    }
-
-    // Comprobar si el jugador está tocando una pared (wallMask).
     public bool CheckWall(Vector3 direction)
     {
-        Vector3 origin = playerTransform.position + UpOffset;
-        return Physics.SphereCastNonAlloc(origin, 0.3f, direction.normalized, hitResults, 0.2f, wallMask) > 0;
+        Vector3 origin = trackedTransform.position + UpOffset;
+        return SphereCast(origin, direction.normalized, 0.3f, 0.2f, wallMask);
     }
 
-    // Comprobar si el jugador está tocando un obstáculo (obstacleMask).
-    private bool CheckObstacle(out Vector3 direction)
+    private static bool SphereCast(Vector3 origin, Vector3 direction, float radius, float distance, LayerMask layerMask)
     {
-        Vector3 origin = playerTransform.position + UpOffset;
-        if (Physics.SphereCastNonAlloc(origin, 0.3f, playerTransform.forward, hitResults, 0.5f, obstacleMask) > 0)
+        return Physics.SphereCastNonAlloc(origin, radius, direction, hitResults, distance, layerMask) > 0;
+    }
+
+    private static bool SphereCast(Vector3 origin, Vector3 direction, float radius, float distance, LayerMask layerMask, out Vector3 impactDirection)
+    {
+        bool hit = Physics.SphereCastNonAlloc(origin, radius, direction, hitResults, distance, layerMask) > 0;
+        impactDirection = hit ? -direction : Vector3.zero;
+        return hit;
+    }
+
+    public float CorrectCameraDistance(Vector3 origin, Vector3 direction, float desiredDistance, float minDistance, float sphereRadius)
+    {
+        int hitCount = Physics.SphereCastNonAlloc(origin, sphereRadius, direction, hitResults, desiredDistance, groundMask);
+        if (hitCount > 0)
         {
-            direction = -playerTransform.forward;
-            return true;
+            return Mathf.Max(minDistance, hitResults[0].distance - 0.1f);
         }
-
-        direction = Vector3.zero;
-        return false;
+        return desiredDistance;
     }
 
-    // Comprobar si el jugador está tocando una bala (bulletMask).
-    // Si hay, devuelve la dirección opuesta.
-    private bool CheckBullet(out Vector3 direction)
-    {
-        Vector3 origin = playerTransform.position + UpOffset;
-        if (Physics.SphereCastNonAlloc(origin, 0.3f, playerTransform.forward, hitResults, 0.5f, bulletMask) > 0)
-        {
-            direction = -playerTransform.forward;
-            return true;
-        }
-
-        direction = Vector3.zero;
-        return false;
-    }
-
-    // Comprobar si el jugador está en la zona de victoria (winZoneMask).
-    // Si lo esta, TRUE y gana el juego
-    private bool CheckWinZone()
-    {
-        Vector3 origin = playerTransform.position + UpOffset;
-        return Physics.SphereCastNonAlloc(origin, 0.3f, Vector3.forward, hitResults, 0.5f, winZoneMask) > 0;
-    }
 }

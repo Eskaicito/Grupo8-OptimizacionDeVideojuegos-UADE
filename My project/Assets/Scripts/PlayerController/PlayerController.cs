@@ -1,64 +1,78 @@
-using UnityEngine;
-
-/// <summary>
-/// Controlador principal del jugador. Gestiona el movimiento, salto, gravedad, empujes externos, 
-/// interacción con obstáculos y salida del juego.
-/// Se ejecuta mediante un sistema de actualización manual a través de IUpdatable
-/// </summary>
+ï»¿using UnityEngine;
 
 public class PlayerController : IUpdatable
 {
     private readonly Transform playerTransform;
+    private readonly Transform cameraTransform;
     private readonly InputManager inputHandler;
     private readonly CollisionManager collisionHandler;
-    private Transform cameraTransform;
-
-    // Caché de movimientos para minimizar asignaciones de memoria
-    private Vector3 velocity;
-    private Vector3 cachedMove = new Vector3();
-    private Vector3 cachedVerticalMove = new Vector3();
-    private Vector3 cachedForward = new Vector3();
-    private Vector3 cachedRight = new Vector3();
+    private readonly Transform respawnPosition;
 
     private readonly float moveSpeed;
     private readonly float jumpForce;
-    private const float gravity = -20f;
+    private readonly float gravity;
+    private readonly float acceleration;
+    private readonly float deceleration;
+    private readonly float turnSpeed;
 
-    private readonly Transform RespawnPosition;
+    private Vector3 velocity;
+    private Vector3 momentum;
+    private float currentSpeed = 0f;
 
-    /// <summary>
-    /// El Constructor que recibe todas las dependencias necesarias desde el exterior.
-    /// </summary>
-    public PlayerController(Transform playerTransform, InputManager inputHandler, CollisionManager collisionHandler, float moveSpeed, float jumpForce, Transform Respawn)
+    public PlayerController(Transform playerTransform, InputManager inputHandler, CollisionManager collisionHandler, Transform respawnPosition, float moveSpeed, float jumpForce, float gravity, float acceleration, float deceleration, float turnSpeed, Transform cameraTransform)
     {
         this.playerTransform = playerTransform;
         this.inputHandler = inputHandler;
         this.collisionHandler = collisionHandler;
+        this.respawnPosition = respawnPosition;
         this.moveSpeed = moveSpeed;
         this.jumpForce = jumpForce;
-        this.RespawnPosition = Respawn;
-    }
-    /// <summary>
-    /// Esto para alinear l camara con la rotaci[on del jugador
-    /// </summary>
-    public void SetCameraTransform(Transform camTransform)
-    {
-        cameraTransform = camTransform;
+        this.gravity = gravity;
+        this.acceleration = acceleration;
+        this.deceleration = deceleration;
+        this.turnSpeed = turnSpeed;
+        this.cameraTransform = cameraTransform;
     }
 
     public void Tick(float deltaTime)
     {
-        cachedForward = playerTransform.forward;
-        cachedRight = playerTransform.right;
+        velocity.y = PhysicsHelper.ApplyGravity(velocity.y, gravity, deltaTime, collisionHandler.IsGrounded);
+        playerTransform.position = PhysicsHelper.ApplyVerticalMovement(playerTransform.position, velocity.y, deltaTime);
 
-        HandleGravity(deltaTime);
-        ApplyVerticalMovement(deltaTime);
+        if (playerTransform.position.y < -10f)
+        {
+            playerTransform.position = respawnPosition.position;
+            velocity.y = 0f;
+        }
+
+        Vector3 cameraForwardXZ = cameraTransform.forward;
+        cameraForwardXZ.y = 0f;
+        MathHelper.NormalizeSafe(ref cameraForwardXZ); // âœ… Usamos MathHelper
+
+        Vector3 cameraRight = MathHelper.RightFromForward(cameraForwardXZ); // âœ… TambiÃ©n formalizado
 
         Vector3 moveInput = inputHandler.MoveInput;
-        if (moveInput.sqrMagnitude > 0.01f)
+        bool hasInput = moveInput.sqrMagnitude > 0.01f;
+
+        if (hasInput)
         {
-            Move(deltaTime, moveInput);
-            AlignWithCamera(deltaTime);
+            Vector3 desiredDirection = (cameraRight * moveInput.x + cameraForwardXZ * moveInput.z);
+            MathHelper.NormalizeSafe(ref desiredDirection); // âœ… Normalizamos correctamente
+
+            momentum = Vector3.Slerp(momentum, desiredDirection, turnSpeed * deltaTime);
+            currentSpeed = Mathf.MoveTowards(currentSpeed, moveSpeed, acceleration * deltaTime);
+
+            Quaternion targetRotation = Quaternion.LookRotation(momentum);
+            playerTransform.rotation = Quaternion.Lerp(playerTransform.rotation, targetRotation, turnSpeed * deltaTime);
+        }
+        else
+        {
+            currentSpeed = Mathf.MoveTowards(currentSpeed, 0f, deceleration * deltaTime);
+        }
+
+        if (currentSpeed > 0.01f && !collisionHandler.CheckWall(momentum))
+        {
+            playerTransform.position += momentum * currentSpeed * deltaTime;
         }
 
         if (inputHandler.JumpPressed && collisionHandler.IsGrounded)
@@ -68,109 +82,17 @@ public class PlayerController : IUpdatable
 
         if (collisionHandler.IsTouchingObstacle)
         {
-            ApplyExternalPush(collisionHandler.LastObstacleDirection, 300f, deltaTime);
+            playerTransform.position = PhysicsHelper.ApplyForce(playerTransform.position, collisionHandler.LastObstacleDirection, 300f, deltaTime);
         }
 
         if (collisionHandler.IsTouchingBullet)
         {
-            ApplyExternalPush(collisionHandler.LastBulletDirection, 400f, deltaTime);
+            playerTransform.position = PhysicsHelper.ApplyForce(playerTransform.position, collisionHandler.LastBulletDirection, 400f, deltaTime);
         }
 
-       
         if (collisionHandler.IsInWinZone || inputHandler.ExitPressed)
         {
-           
             Application.Quit();
-        }
-    }
-    /// <summary>
-    /// Aplica una fuerza de empuje al jugador en la dirección indicada. Es para cuando algo lo golpee
-    /// </summary>
-    private void ApplyExternalPush(Vector3 direction, float force, float deltaTime)
-    {
-        NormalizeSafe(ref direction);
-        playerTransform.position += direction * force * deltaTime;
-    }
-
-    /// <summary>
-    /// Calcula y aplica el movimiento horizontal del jugador en base al input. Tambien para el choque de paredes
-    /// </summary>
-    private void Move(float deltaTime, Vector3 inputVector)
-    {
-        cachedMove.Set(
-            cachedRight.x * inputVector.x + cachedForward.x * inputVector.z,
-            0f,
-            cachedRight.z * inputVector.x + cachedForward.z * inputVector.z
-        );
-
-        if (cachedMove.sqrMagnitude > 0.01f)
-        {
-            if (!collisionHandler.CheckWall(cachedMove))
-            {
-                cachedMove *= moveSpeed * deltaTime;
-                playerTransform.position += cachedMove;
-            }
-        }
-    }
-
-    /// <summary>
-    /// Calcular la gravedad del jugador. Si toca el suelo, es 0.
-    /// </summary>
-    private void HandleGravity(float deltaTime)
-    {
-        if (collisionHandler.IsGrounded)
-        {
-            if (velocity.y < 0f)
-                velocity.y = 0f;
-        }
-        else
-        {
-            velocity.y += gravity * deltaTime;
-        }
-    }
-    /// <summary>
-    /// Aplica el movimiento vertical acumulado. También resetea la posición si el jugador cae fuera del nivel.
-    /// </summary>
-    private void ApplyVerticalMovement(float deltaTime)
-    {
-        cachedVerticalMove.Set(0f, velocity.y * deltaTime, 0f);
-        playerTransform.position += cachedVerticalMove;
-
-        if (playerTransform.position.y < -10f)
-        {
-            playerTransform.position = RespawnPosition.position;
-            velocity.y = 0f;
-        }
-    }
-
-    /// <summary>
-    /// Ajusta la rotación del jugador para que siempre mire hacia la dirección de la cámara.
-    /// </summary>
-    private void AlignWithCamera(float deltaTime)
-    {
-        if (cameraTransform == null) return;
-
-        Vector3 cameraForward = cameraTransform.forward;
-        cameraForward.y = 0f;
-
-        if (cameraForward.sqrMagnitude > 0.01f)
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(cameraForward);
-            playerTransform.rotation = Quaternion.Lerp(playerTransform.rotation, targetRotation, deltaTime * 10f);
-        }
-    }
-    /// <summary>
-    /// Para normalizar vectores
-    /// </summary>
-    private static void NormalizeSafe(ref Vector3 vector)
-    {
-        float mag = vector.magnitude;
-        if (mag > 0.0001f)
-        {
-            float invMag = 1f / mag;
-            vector.x *= invMag;
-            vector.y *= invMag;
-            vector.z *= invMag;
         }
     }
 }
