@@ -23,7 +23,7 @@ public class InputManager : IUpdatable
         JumpPressed = Input.GetKeyDown(KeyCode.Space);
         ExitPressed = Input.GetKeyDown(KeyCode.Escape);
 
-        // ✅ Captura de input para la rotación de cámara
+     
         CameraYawInput = 0f;
         if (Input.GetKey(KeyCode.Q)) CameraYawInput = -1f;
         else if (Input.GetKey(KeyCode.E)) CameraYawInput = 1f;

@@ -54,7 +54,7 @@ public class PlayerController : IUpdatable
         HandleMovement(deltaTime);
         HandleExternalPush(deltaTime);
         HandleJump();
-        HandleImpacts(deltaTime);
+        HandleImpacts();
         HandleGameState();
     }
 
@@ -62,6 +62,13 @@ public class PlayerController : IUpdatable
     {
         velocity.y = PhysicsHelper.ApplyGravity(velocity.y, gravity, deltaTime, collisionHandler.IsGrounded);
         playerTransform.position = PhysicsHelper.ApplyVerticalMovement(playerTransform.position, velocity.y, deltaTime);
+
+        float penetration = collisionHandler.GetGroundPenetration();
+        if (penetration > 0f)
+        {
+            playerTransform.position += Vector3.up * penetration;
+            velocity.y = 0f;
+        }
 
         if (playerTransform.position.y < -10f)
         {
@@ -120,16 +127,16 @@ public class PlayerController : IUpdatable
         }
     }
 
-    private void HandleImpacts(float deltaTime)
+    private void HandleImpacts()
     {
         if (collisionHandler.IsTouchingObstacle)
         {
-            externalPushVelocity = PhysicsHelper.CalculateExternalPush(externalPushVelocity, collisionHandler.LastObstacleDirection, 5f);
+            externalPushVelocity += PhysicsHelper.CalculateImpulsePush(collisionHandler.LastObstacleDirection, 5f, momentum);
         }
 
         if (collisionHandler.IsTouchingBullet)
         {
-            externalPushVelocity = PhysicsHelper.CalculateExternalPush(externalPushVelocity, collisionHandler.LastBulletDirection, 5f);
+            externalPushVelocity += PhysicsHelper.CalculateImpulsePush(collisionHandler.LastBulletDirection, 5f, momentum);
         }
     }
 

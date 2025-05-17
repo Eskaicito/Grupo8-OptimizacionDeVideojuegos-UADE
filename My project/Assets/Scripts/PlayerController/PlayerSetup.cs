@@ -32,7 +32,7 @@ public class PlayerSetup : MonoBehaviour
             return;
         }
 
-        // ✅ Input y Collision Managers
+       
         var inputHandler = new InputManager();
         var collisionHandler = new CollisionManager(
             transform,
@@ -54,11 +54,11 @@ public class PlayerSetup : MonoBehaviour
     acceleration,
     deceleration,
     turnSpeed,
-    cameraTransform // ✅
+    cameraTransform 
 );
 
 
-        // ✅ Camera Controller (TankCamera)
+      
         var tankCamera = new TankCamera(
      cameraTransform,
      transform,
@@ -66,7 +66,6 @@ public class PlayerSetup : MonoBehaviour
      inputHandler
  );
 
-        // ✅ Registrar todo en UpdateManager
         updateManager.Register(inputHandler);
         updateManager.Register(collisionHandler);
         updateManager.Register(playerController);
