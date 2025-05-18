@@ -26,11 +26,11 @@ public class PlayerSetup : MonoBehaviour
     private void Awake()
     {
         var updateManager = FindFirstObjectByType<CustomUpdateManager>();
-        if (updateManager == null)
-        {
-            Debug.LogError("CustomUpdateManager not found in the scene!");
-            return;
-        }
+        //if (updateManager == null)
+        //{
+        //    Debug.LogError("CustomUpdateManager not found in the scene!");
+        //    return;
+        //}
 
        
         var inputHandler = new InputManager();
