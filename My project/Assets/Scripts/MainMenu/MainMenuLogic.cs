@@ -7,6 +7,7 @@ public class MainMenuLogic : IUpdatable
     private readonly Transform playButton;
     private readonly Transform exitButton;
     private readonly LayerMask layerMask;
+    private readonly RaycastHit[] raycastHits = new RaycastHit[1];
 
     public MainMenuLogic(Camera camera, Transform playButton, Transform exitButton, LayerMask layerMask)
     {
@@ -22,13 +23,17 @@ public class MainMenuLogic : IUpdatable
         {
             Ray ray = camera.ScreenPointToRay(Input.mousePosition);
 
-            if (Physics.Raycast(ray, out RaycastHit hit, 100f, layerMask))
+            int hitCount = Physics.RaycastNonAlloc(ray, raycastHits, 100f, layerMask);
+
+            if (hitCount > 0)
             {
-                if (hit.transform == playButton)
+                Transform hitTransform = raycastHits[0].transform;
+
+                if (hitTransform == playButton)
                 {
                     PlayGame();
                 }
-                else if (hit.transform == exitButton)
+                else if (hitTransform == exitButton)
                 {
                     ExitGame();
                 }
