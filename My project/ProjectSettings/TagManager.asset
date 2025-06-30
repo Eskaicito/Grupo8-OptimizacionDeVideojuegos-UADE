@@ -14,12 +14,12 @@ TagManager:
   - UI
   - Ground
   - Wall
-  - Ledge
+  - UIButton
   - Obstacle
   - Bullet
-  - 
-  - 
-  - 
+  - WinZone
+  - Player
+  - ChangeZone
   - 
   - 
   - 
