@@ -19,4 +19,15 @@ public class BasicPostProcessSetup : MonoBehaviour
     {
         logic.RenderPostProcess(source, destination);
     }
+
+    private void OnDestroy()
+    {
+        var updateManager = FindFirstObjectByType<CustomUpdateManager>();
+        if (updateManager != null)
+        {
+            updateManager.Unregister(logic);
+        }
+        logic.Dispose(); // Liberate resources
+    }
+
 }

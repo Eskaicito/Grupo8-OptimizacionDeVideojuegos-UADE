@@ -21,4 +21,12 @@ public class BasicPostProcessLogic : IUpdatable
         source.wrapMode = TextureWrapMode.Mirror;
         Graphics.Blit(source, destination, mat);
     }
+
+    public void Dispose()
+    {
+        if (mat != null)
+        {
+            Object.Destroy(mat);
+        }
+    }
 }

@@ -156,7 +156,8 @@ public class PlayerController : IUpdatable
     {
         if (collisionHandler.IsInWinZone || inputHandler.ExitPressed)
         {
-            Application.Quit();
+            LoadingData.SceneToLoad = "MainMenu";
+            UnityEngine.SceneManagement.SceneManager.LoadScene("LoadingScreen");
         }
     }
 }
