@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Materials
+  m_EditorClassIdentifier: 
+  m_GroupName: Materials
+  m_Data:
+    m_SerializedData: []
+  m_GUID: c7c99308cbcfa474d95048ffbdd6dda8
+  m_SerializeEntries:
+  - m_GUID: 84fa9326ab2018b4ab32a03b562def71
+    m_Address: Assets/Graphics/Materials/atlas1.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ac43c5c84d6b9dd45adb4d785c3a6b5f
+    m_Address: Assets/Graphics/Materials/atlasObjects2.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f6897f3e137c5a344adb8fc7dc7417ad
+    m_Address: Assets/Graphics/Materials/turtleLOD1.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b8d8b12de1d554c4c88151249034b65d
+    m_Address: Assets/Graphics/Materials/atlasObjects.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f38d61ebdf1997e4698612e546e7b6d9
+    m_Address: Assets/Graphics/Materials/starsy.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 7f7cd28cc1732eb4190fdca8524ad833, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 9008a7c3284a8d34890e871ce283c8a5, type: 2}
+    - {fileID: 11400000, guid: 6cbfd6a9cbaa61e44b47a54477f4e422, type: 2}
