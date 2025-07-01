@@ -4,94 +4,110 @@ using UnityEngine.UI;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
-public class AddressablesTextureManager : MonoBehaviour
+public class AddressablesAssetManager : MonoBehaviour
 {
-    public enum TargetType { Renderer, RawImage, Image, RendererMaterial }
+    [System.Serializable]
+    public class MaterialAssignment
+    {
+        public string address;                 // Address de Addressables
+        public List<Renderer> targetRenderers; // Renderers que recibirán este material
+    }
 
     [System.Serializable]
     public class TextureAssignment
     {
-        public string address;
-        public TargetType targetType;
-        public Renderer targetRenderer;
-        public RawImage targetRawImage;
-        public Image targetImage;
+        public string address;                   // Address de Addressables
+        public List<Renderer> targetRenderers;   // Renderers que recibirán la textura en el material
+        public List<RawImage> targetRawImages;   // RawImages de UI que recibirán la textura
+        public List<Image> targetImages;         // Images de UI que recibirán la textura
     }
 
+    [Header("Materials to Load")]
+    [SerializeField] private List<MaterialAssignment> materialsToLoad = new List<MaterialAssignment>();
+
+    [Header("Textures to Load")]
     [SerializeField] private List<TextureAssignment> texturesToLoad = new List<TextureAssignment>();
+
     private List<AsyncOperationHandle> handles = new List<AsyncOperationHandle>();
 
     private void Awake()
     {
-        LoadAssets();
+        LoadMaterials();
+        LoadTextures();
     }
 
-    public void LoadAssets()
+    private void LoadMaterials()
+    {
+        foreach (var matAssign in materialsToLoad)
+        {
+            var handle = Addressables.LoadAssetAsync<Material>(matAssign.address);
+            handle.Completed += (completedHandle) =>
+            {
+                if (completedHandle.Status == AsyncOperationStatus.Succeeded)
+                {
+                    Material loadedMaterial = completedHandle.Result;
+                    foreach (var renderer in matAssign.targetRenderers)
+                    {
+                        if (renderer != null)
+                            renderer.sharedMaterial = loadedMaterial; // Usa sharedMaterial para evitar duplicaciones
+                    }
+                    Debug.Log($"[Addressables] Material '{matAssign.address}' loaded and assigned to {matAssign.targetRenderers.Count} renderers.");
+                }
+                else
+                {
+                    Debug.LogError($"[Addressables] Failed to load material: {matAssign.address}");
+                }
+            };
+            handles.Add(handle);
+        }
+    }
+
+    private void LoadTextures()
     {
         foreach (var texAssign in texturesToLoad)
         {
-            switch (texAssign.targetType)
+            var handle = Addressables.LoadAssetAsync<Texture2D>(texAssign.address);
+            handle.Completed += (completedHandle) =>
             {
-                case TargetType.RendererMaterial:
+                if (completedHandle.Status == AsyncOperationStatus.Succeeded)
+                {
+                    Texture2D texture = completedHandle.Result;
+
+                    // Asignar a renderers
+                    foreach (var renderer in texAssign.targetRenderers)
                     {
-                        var handle = Addressables.LoadAssetAsync<Material>(texAssign.address);
-                        handle.Completed += (completedHandle) =>
-                        {
-                            if (completedHandle.Status == AsyncOperationStatus.Succeeded)
-                            {
-                                if (texAssign.targetRenderer != null)
-                                    texAssign.targetRenderer.material = completedHandle.Result;
-                                Debug.Log($"[Addressables] Material '{texAssign.address}' loaded and assigned.");
-                            }
-                            else
-                            {
-                                Debug.LogError($"[Addressables] Failed to load material: {texAssign.address}");
-                            }
-                        };
-                        handles.Add(handle);
-                        break;
+                        if (renderer != null && renderer.sharedMaterial != null)
+                            renderer.sharedMaterial.mainTexture = texture;
                     }
 
-                default:
+                    // Asignar a RawImages
+                    foreach (var rawImage in texAssign.targetRawImages)
                     {
-                        var handle = Addressables.LoadAssetAsync<Texture2D>(texAssign.address);
-                        handle.Completed += (completedHandle) =>
-                        {
-                            if (completedHandle.Status == AsyncOperationStatus.Succeeded)
-                            {
-                                Texture2D texture = completedHandle.Result;
-                                switch (texAssign.targetType)
-                                {
-                                    case TargetType.Renderer:
-                                        if (texAssign.targetRenderer != null)
-                                            texAssign.targetRenderer.material.mainTexture = texture;
-                                        break;
-                                    case TargetType.RawImage:
-                                        if (texAssign.targetRawImage != null)
-                                            texAssign.targetRawImage.texture = texture;
-                                        break;
-                                    case TargetType.Image:
-                                        if (texAssign.targetImage != null)
-                                        {
-                                            Sprite sprite = Sprite.Create(
-                                                texture,
-                                                new Rect(0, 0, texture.width, texture.height),
-                                                new Vector2(0.5f, 0.5f));
-                                            texAssign.targetImage.sprite = sprite;
-                                        }
-                                        break;
-                                }
-                                Debug.Log($"[Addressables] Texture '{texAssign.address}' loaded.");
-                            }
-                            else
-                            {
-                                Debug.LogError($"[Addressables] Failed to load texture: {texAssign.address}");
-                            }
-                        };
-                        handles.Add(handle);
-                        break;
+                        if (rawImage != null)
+                            rawImage.texture = texture;
                     }
-            }
+
+                    // Asignar a Images
+                    foreach (var image in texAssign.targetImages)
+                    {
+                        if (image != null)
+                        {
+                            Sprite sprite = Sprite.Create(
+                                texture,
+                                new Rect(0, 0, texture.width, texture.height),
+                                new Vector2(0.5f, 0.5f));
+                            image.sprite = sprite;
+                        }
+                    }
+
+                    Debug.Log($"[Addressables] Texture '{texAssign.address}' loaded and assigned.");
+                }
+                else
+                {
+                    Debug.LogError($"[Addressables] Failed to load texture: {texAssign.address}");
+                }
+            };
+            handles.Add(handle);
         }
     }
 
