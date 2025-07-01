@@ -17,11 +17,6 @@ MonoBehaviour:
     m_SerializedData: []
   m_GUID: 41bb0b2866837a74e905f0c21823aeb0
   m_SerializeEntries:
-  - m_GUID: 61342bb2f11bdd549bcc337b567344d8
-    m_Address: Assets/Graphics/Textures/UI/controlsMario64.png
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ffe5f88b723ba6a4399cb059faa7ad27
     m_Address: Assets/Graphics/Textures/UI/superFede7Logo.png
     m_ReadOnly: 0
@@ -32,8 +27,8 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: be450ecc3d2ccd644bb90da10eee091a
-    m_Address: Assets/Graphics/Textures/UI/playexit.jpg
+  - m_GUID: f5bd6c1d316b4324a93a0b29fbc1ed0f
+    m_Address: Assets/Graphics/Textures/UI/smart_monkey_isologo.png
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
