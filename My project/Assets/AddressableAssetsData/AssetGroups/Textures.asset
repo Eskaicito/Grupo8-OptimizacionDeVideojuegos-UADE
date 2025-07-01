@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Textures
+  m_EditorClassIdentifier: 
+  m_GroupName: Textures
+  m_Data:
+    m_SerializedData: []
+  m_GUID: 41bb0b2866837a74e905f0c21823aeb0
+  m_SerializeEntries:
+  - m_GUID: 61342bb2f11bdd549bcc337b567344d8
+    m_Address: Assets/Graphics/Textures/UI/controlsMario64.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ffe5f88b723ba6a4399cb059faa7ad27
+    m_Address: Assets/Graphics/Textures/UI/superFede7Logo.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6f4502c561744cb42af2d99df046d6cd
+    m_Address: Assets/Graphics/Textures/UI/SF7bg.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: be450ecc3d2ccd644bb90da10eee091a
+    m_Address: Assets/Graphics/Textures/UI/playexit.jpg
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 7f7cd28cc1732eb4190fdca8524ad833, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: cbc822271c945ac42bc2eef1a4f025fb, type: 2}
+    - {fileID: 11400000, guid: 5a0f8248925bcec4cacdd63a626541ed, type: 2}
