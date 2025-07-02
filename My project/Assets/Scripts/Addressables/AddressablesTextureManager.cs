@@ -9,17 +9,17 @@ public class AddressablesAssetManager : MonoBehaviour
     [System.Serializable]
     public class MaterialAssignment
     {
-        public string address;                 
-        public List<Renderer> targetRenderers; 
+        public string address;
+        public List<Renderer> targetRenderers;
     }
 
     [System.Serializable]
     public class TextureAssignment
     {
-        public string address;                 
-        public List<Renderer> targetRenderers;   
-        public List<RawImage> targetRawImages;   
-        public List<Image> targetImages;         
+        public string address;
+        public List<Renderer> targetRenderers;
+        public List<RawImage> targetRawImages;
+        public List<Image> targetImages;
     }
 
     [Header("Materials to Load")]
@@ -49,7 +49,7 @@ public class AddressablesAssetManager : MonoBehaviour
                     foreach (var renderer in matAssign.targetRenderers)
                     {
                         if (renderer != null)
-                            renderer.sharedMaterial = loadedMaterial; 
+                            renderer.sharedMaterial = loadedMaterial;
                     }
                     Debug.Log($"[Addressables] Material '{matAssign.address}' loaded and assigned to {matAssign.targetRenderers.Count} renderers.");
                 }
@@ -86,18 +86,5 @@ public class AddressablesAssetManager : MonoBehaviour
             };
             handles.Add(handle);
         }
-    }
-
-    public void ReleaseAssets()
-    {
-        foreach (var handle in handles)
-        {
-            if (handle.IsValid())
-            {
-                Addressables.Release(handle);
-            }
-        }
-        handles.Clear();
-        Debug.Log("[Addressables] All assets released.");
     }
 }
