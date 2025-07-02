@@ -9,16 +9,34 @@ public class MainMenuLogic : IUpdatable
     private readonly LayerMask layerMask;
     private readonly RaycastHit[] raycastHits = new RaycastHit[1];
 
-    public MainMenuLogic(Camera camera, Transform playButton, Transform exitButton, LayerMask layerMask)
+    private readonly GameObject splashScreenUI;
+    private float splashTimer = 0f;
+    private bool splashHidden = false;
+
+    public MainMenuLogic(Camera camera, Transform playButton, Transform exitButton, LayerMask layerMask, GameObject splashScreenUI)
     {
         this.camera = camera;
         this.playButton = playButton;
         this.exitButton = exitButton;
         this.layerMask = layerMask;
+        this.splashScreenUI = splashScreenUI;
     }
 
     public void Tick(float deltaTime)
     {
+        
+        if (!splashHidden)
+        {
+            splashTimer += deltaTime;
+            if (splashTimer >= 4f)
+            {
+                splashScreenUI.SetActive(false);
+                splashHidden = true;
+            }
+            return; 
+        }
+
+   
         if (Input.GetMouseButtonDown(0))
         {
             Ray ray = camera.ScreenPointToRay(Input.mousePosition);
