@@ -5,7 +5,7 @@
 
 ![superFede7Logo](https://github.com/user-attachments/assets/17b12596-bece-491f-9d3d-8f2fac37d570)
 
-**Super Fede 7** es un **plataformero 3D corto inspirado en Mario 64**, desarrollado en Unity 2023 por un equipo pequeño como proyecto personal y de aprendizaje.
+**Super Fede 7** es un **plataformero 3D corto inspirado en Mario 64**, desarrollado en Unity 2023.
 
 ## Controles
 
@@ -13,4 +13,12 @@
 - **Espacio** – Saltar
 - **Q y E** – Control de Cámara
 - **ESC** – Salir al menú
+
+- ## Integrantes
+
+- *Alegre, Federico*
+- *Barbosa, Sebastian* 
+- *Basile, Maximo*
+- *Menta Bullrich, Gregorio*
+- *Saldeño, Nicolas*
 
