@@ -1,22 +1,14 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class TankCameraSetup : MonoBehaviour
 {
-    [SerializeField] private Transform target;
-    private TankCamera cameraLogic;
+    //[SerializeField] private Transform target;
+    //[SerializeField] private CollisionManager collisionManager;
 
-    void Awake()
-    {
-        cameraLogic = new TankCamera(transform, target);
-        var updateManager = FindFirstObjectByType<CustomUpdateManager>();
-        updateManager.Register(cameraLogic);
-    }
-
-    //void OnDestroy()
+    //private void Awake()
     //{
+    //    var cameraLogic = new TankCamera(transform, target, collisionManager);
     //    var updateManager = FindFirstObjectByType<CustomUpdateManager>();
-    //    updateManager?.Unregister(cameraLogic);
+    //    updateManager.Register(cameraLogic);
     //}
 }

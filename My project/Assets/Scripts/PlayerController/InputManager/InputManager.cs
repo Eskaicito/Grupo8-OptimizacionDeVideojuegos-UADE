@@ -1,10 +1,15 @@
-using UnityEditor;
-using UnityEngine;
+﻿using UnityEngine;
 
+/// <summary>
+/// Gestor de entrada personalizado. Captura inputs de movimiento, salto, cámara y salida.
+/// Se ejecuta mediante IUpdatable.
+/// </summary>
 public class InputManager : IUpdatable
 {
     public Vector3 MoveInput { get; private set; }
     public bool JumpPressed { get; private set; }
+    public bool ExitPressed { get; private set; }
+    public float CameraYawInput { get; private set; }
 
     public void Tick(float deltaTime)
     {
@@ -16,16 +21,11 @@ public class InputManager : IUpdatable
             MoveInput.Normalize();
 
         JumpPressed = Input.GetKeyDown(KeyCode.Space);
+        ExitPressed = Input.GetKeyDown(KeyCode.Escape);
 
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            Debug.Log("Escape presionado. Saliendo del juego...");
-            #if UNITY_EDITOR
-            EditorApplication.isPlaying = false;
-            #else
-            Application.Quit();
-            #endif
-        }
-
+     
+        CameraYawInput = 0f;
+        if (Input.GetKey(KeyCode.Q)) CameraYawInput = -1f;
+        else if (Input.GetKey(KeyCode.E)) CameraYawInput = 1f;
     }
 }

@@ -1,20 +1,38 @@
-using UnityEngine;
-
+﻿using UnityEngine;
 
 public class PlayerSetup : MonoBehaviour
 {
+    [Header("Collision Layers")]
     [SerializeField] private LayerMask groundMask;
     [SerializeField] private LayerMask wallMask;
     [SerializeField] private LayerMask obstacleMask;
     [SerializeField] private LayerMask bulletMask;
-    [SerializeField] private LayerMask winZoneMask; 
+    [SerializeField] private LayerMask winZoneMask;
 
-    [SerializeField] private float moveSpeed;
-    [SerializeField] private float jumpForce;
-    [SerializeField] private Transform respawn;
+    [Header("Movement Settings")]
+    [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float jumpForce = 5f;
+    [SerializeField] private float gravity = -20f;
+    [SerializeField] private float acceleration = 10f;
+    [SerializeField] private float deceleration = 12f;
+    [SerializeField] private float turnSpeed = 8f;
+
+    [Header("Respawn Point")]
+    [SerializeField] private Transform respawnPoint;
+
+    [Header("Camera Settings")]
+    [SerializeField] private Transform cameraTransform;
 
     private void Awake()
     {
+        var updateManager = FindFirstObjectByType<CustomUpdateManager>();
+        //if (updateManager == null)
+        //{
+        //    Debug.LogError("CustomUpdateManager not found in the scene!");
+        //    return;
+        //}
+
+       
         var inputHandler = new InputManager();
         var collisionHandler = new CollisionManager(
             transform,
@@ -22,27 +40,35 @@ public class PlayerSetup : MonoBehaviour
             wallMask,
             obstacleMask,
             bulletMask,
-            winZoneMask 
+            winZoneMask
         );
 
-        var playerLogic = new PlayerController(
-            transform,
-            inputHandler,
-            collisionHandler,
-            moveSpeed,
-            jumpForce,
-            respawn
-        );
+        var playerController = new PlayerController(
+    transform,
+    inputHandler,
+    collisionHandler,
+    respawnPoint,
+    moveSpeed,
+    jumpForce,
+    gravity,
+    acceleration,
+    deceleration,
+    turnSpeed,
+    cameraTransform 
+);
 
-        var cam = Camera.main;
-        if (cam != null)
-        {
-            playerLogic.SetCameraTransform(cam.transform);
-        }
 
-        var updateManager = FindFirstObjectByType<CustomUpdateManager>();
+      
+        var tankCamera = new TankCamera(
+     cameraTransform,
+     transform,
+     collisionHandler,
+     inputHandler
+ );
+
         updateManager.Register(inputHandler);
         updateManager.Register(collisionHandler);
-        updateManager.Register(playerLogic);
+        updateManager.Register(playerController);
+        updateManager.Register(tankCamera);
     }
 }

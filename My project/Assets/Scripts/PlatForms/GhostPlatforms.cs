@@ -2,6 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// Clase que maneja la lógica de las plataformas fantasma.
+// Estas plataformas aparecen y desaparecen en intervalos aleatorios.
+// También cambian de color cuando están a punto de desaparecer.
+
 public class GhostPlatforms : IUpdatable
 {
     private readonly Renderer _renderer;
@@ -22,6 +26,9 @@ public class GhostPlatforms : IUpdatable
 
     private static readonly int ColorID = Shader.PropertyToID("_Color");
 
+
+    // Constructor que inicializa las propiedades necesarias para la lógica de las plataformas fantasma.
+    // El constructor recibe el Renderer y Collider de la plataforma, los intervalos de tiempo, el color normal y el color de advertencia.
     public GhostPlatforms(Renderer rend, Collider col, float min, float max, float warning, Color normal, Color warningCol)
     {
         _renderer = rend;
@@ -36,6 +43,9 @@ public class GhostPlatforms : IUpdatable
         SetColor(normalColor);
     }
 
+
+    // Este método se llama cada frame para actualizar el estado de las plataformas fantasma.
+    // Se encarga de manejar el temporizador y alternar la visibilidad de la plataforma.
     public void Tick(float deltaTime)
     {
         timer += deltaTime;
@@ -60,12 +70,16 @@ public class GhostPlatforms : IUpdatable
         }
     }
 
+    // Método que se encarga de cambiar el color de la plataforma.
+    // Utiliza un MaterialPropertyBlock para evitar la creación de instancias innecesarias.
     private void SetColor(Color color)
     {
         block.SetColor(ColorID, color);
         _renderer.SetPropertyBlock(block);
     }
 
+    // Método que inicializa el temporizador y establece un intervalo aleatorio entre las plataformas.
+    // Utiliza Random.Range para establecer un intervalo entre el mínimo y el máximo especificado.
     private void InitializeInterval()
     {
         timer = 0f;
